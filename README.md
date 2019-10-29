@@ -1,53 +1,59 @@
 ---
 page_type: sample
 languages:
-- csharp
+- java
 products:
-- dotnet
-description: "Add 150 character max description"
-urlFragment: "update-this-to-unique-url-stub"
+- azure
+description: "Azure CosmosDB is a globally distributed multi-model database."
+urlFragment: "azure-cosmos-java-getting-started"
 ---
 
-# Official Microsoft Sample
+# Developing a Java app using Azure Cosmos DB Async Java SDK
 
-<!-- 
-Guidelines on README format: https://review.docs.microsoft.com/help/onboard/admin/samples/concepts/readme-template?branch=master
+Azure Cosmos DB is a globally distributed multi-model database. One of the supported APIs is the SQL API, which provides a JSON document model with SQL querying and JavaScript procedural logic. This sample shows you how to use the Azure Cosmos DB with the SQL API to store and access data from a Java application.
 
-Guidance on onboarding samples to docs.microsoft.com/samples: https://review.docs.microsoft.com/help/onboard/admin/samples/process/onboarding?branch=master
+## Getting Started
 
-Taxonomies for products and languages: https://review.docs.microsoft.com/new-hope/information-architecture/metadata/taxonomies?branch=master
--->
+### Prerequisites
 
-Give a short description for your sample here. What does it do and why is it important?
+* Before you can run this sample, you must have the following prerequisites:
 
-## Contents
+   * An active Azure account. If you don't have one, you can sign up for a [free account](https://azure.microsoft.com/free/). Alternatively, you can use the [Azure Cosmos DB Emulator](https://azure.microsoft.com/documentation/articles/documentdb-nosql-local-emulator) for this tutorial. As emulator https certificate is self signed, you need to import its certificate to java trusted cert store as [explained here](https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator-export-ssl-certificates).
 
-Outline the file contents of the repository. It helps users navigate the codebase, build configuration and any related assets.
+   * JDK 1.8+
+   * Maven
 
-| File/folder       | Description                                |
-|-------------------|--------------------------------------------|
-| `src`             | Sample source code.                        |
-| `.gitignore`      | Define what to ignore at commit time.      |
-| `CHANGELOG.md`    | List of changes to the sample.             |
-| `CONTRIBUTING.md` | Guidelines for contributing to the sample. |
-| `README.md`       | This README file.                          |
-| `LICENSE`         | The license for the sample.                |
+### Quickstart
 
-## Prerequisites
+* Then, clone this repository using
 
-Outline the required components and tools that a user might need to have on their machine in order to run the sample. This can be anything from frameworks, SDKs, OS versions or IDE releases.
+```bash
+git clone https://github.com/Azure-Samples/azure-cosmos-java-getting-started.git
+```
 
-## Setup
+* From a command prompt or shell, run the following command to compile and resolve dependencies.
 
-Explain how to prepare the sample once the user clones or downloads the repository. The section should outline every step necessary to install dependencies and set up any settings (for example, API keys and output folders).
+```bash
+cd azure-cosmos-java-getting-started
+mvn clean package
+```
 
-## Runnning the sample
+* From a command prompt or shell, run the following command to run the application.
 
-Outline step-by-step instructions to execute the sample and see its output. Include steps for executing the sample from the IDE, starting specific services in the Azure portal or anything related to the overall launch of the code.
+```bash
+mvn exec:java -DACCOUNT_HOST=YOUR_COSMOS_DB_HOSTNAME -DACCOUNT_KEY=YOUR_COSMOS_DB_MASTER_KEY
+```
 
-## Key concepts
+## About the code
 
-Provide users with more context on the tools and services used in the sample. Explain some of the code that is being used and how services interact with each other.
+The code included in this sample is intended to get you quickly started with a Java application that connects to Azure Cosmos DB with the SQL API.
+
+## More information
+
+- [Azure Cosmos DB](https://docs.microsoft.com/azure/cosmos-db/introduction)
+- [Azure Cosmos DB : SQL API](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-introduction)
+- [Async Java SDK Github for SQL API of Azure Cosmos DB](https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/cosmos)
+- [Async Java SDK JavaDoc for SQL API of Azure Cosmos DB](TO BE UPDATED)
 
 ## Contributing
 
