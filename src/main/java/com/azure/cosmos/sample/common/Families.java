@@ -5,7 +5,7 @@ package com.azure.cosmos.sample.common;
 
 public class Families {
  
-    public static Family getAndersenFamilyDocument() {
+    public static Family getAndersenFamilyItem() {
         Family andersenFamily = new Family();
         andersenFamily.setId("Andersen-" + System.currentTimeMillis());
         andersenFamily.setLastName("Andersen");
@@ -40,7 +40,7 @@ public class Families {
         return andersenFamily;
     }
 
-    public static Family getWakefieldFamilyDocument() {
+    public static Family getWakefieldFamilyItem() {
         Family wakefieldFamily = new Family();
         wakefieldFamily.setId("Wakefield-" + System.currentTimeMillis());
         wakefieldFamily.setLastName("Wakefield");
@@ -87,7 +87,7 @@ public class Families {
         return wakefieldFamily;
     }
 
-    public static Family getJohnsonFamilyDocument() {
+    public static Family getJohnsonFamilyItem() {
         Family andersenFamily = new Family();
         andersenFamily.setId("Johnson-" + System.currentTimeMillis());
         andersenFamily.setLastName("Johnson");
@@ -101,7 +101,7 @@ public class Families {
         return andersenFamily;
     }
     
-    public static Family getSmithFamilyDocument() {
+    public static Family getSmithFamilyItem() {
         Family andersenFamily = new Family();
         andersenFamily.setId("Smith-" + System.currentTimeMillis());
         andersenFamily.setLastName("Smith");
