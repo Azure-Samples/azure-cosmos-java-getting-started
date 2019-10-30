@@ -8,9 +8,9 @@ description: "Azure CosmosDB is a globally distributed multi-model database."
 urlFragment: "azure-cosmos-java-getting-started"
 ---
 
-# Developing a Java app using Azure Cosmos DB Async Java SDK
+# Developing a Java app using Azure Cosmos DB Java SDK
 
-Azure Cosmos DB is a globally distributed multi-model database. One of the supported APIs is the SQL API, which provides a JSON document model with SQL querying and JavaScript procedural logic. This sample shows you how to use the Azure Cosmos DB with the SQL API to store and access data from a Java application.
+Azure Cosmos DB is a globally distributed multi-model database. One of the supported APIs is the SQL API, which provides a JSON document model with SQL querying and JavaScript procedural logic. The sample uses sync APIs. For async APIs sample, please refer to [example](https://github.com/Azure/azure-sdk-for-java/blob/feature/cosmos/v4/sdk/cosmos/azure-cosmos-examples/src/main/java/com/azure/cosmos/examples/BasicDemo.java).
 
 ## Getting Started
 
@@ -18,14 +18,14 @@ Azure Cosmos DB is a globally distributed multi-model database. One of the suppo
 
 * Before you can run this sample, you must have the following prerequisites:
 
-   * An active Azure account. If you don't have one, you can sign up for a [free account](https://azure.microsoft.com/free/). Alternatively, you can use the [Azure Cosmos DB Emulator](https://azure.microsoft.com/documentation/articles/documentdb-nosql-local-emulator) for this tutorial. As emulator https certificate is self signed, you need to import its certificate to java trusted cert store as [explained here](https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator-export-ssl-certificates).
+   * An active Azure account. If you don't have one, you can sign up for a [free account](https://azure.microsoft.com/free/). Alternatively, you can use the [Azure Cosmos DB Emulator](https://azure.microsoft.com/documentation/articles/documentdb-nosql-local-emulator) for this tutorial. As the emulator https certificate is self signed, you need to import its certificate to the java trusted certificate store as [explained here](https://docs.microsoft.com/azure/cosmos-db/local-emulator-export-ssl-certificates).
 
    * JDK 1.8+
    * Maven
 
 ### Quickstart
 
-* Then, clone this repository using
+* First clone this repository using
 
 ```bash
 git clone https://github.com/Azure-Samples/azure-cosmos-java-getting-started.git
@@ -51,9 +51,9 @@ The code included in this sample is intended to get you quickly started with a J
 ## More information
 
 - [Azure Cosmos DB](https://docs.microsoft.com/azure/cosmos-db/introduction)
-- [Azure Cosmos DB : SQL API](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-introduction)
-- [Async Java SDK Github for SQL API of Azure Cosmos DB](https://github.com/Azure/azure-sdk-for-java/tree/feature/cosmos/v4/sdk/cosmos)
-- [Async Java SDK JavaDoc for SQL API of Azure Cosmos DB](TO BE UPDATED)
+- [Azure Cosmos DB : SQL API](https://docs.microsoft.com/azure/cosmos-db/sql-api-introduction)
+- [Java SDK Github for SQL API of Azure Cosmos DB](https://github.com/Azure/azure-sdk-for-java/tree/feature/cosmos/v4/sdk/cosmos)
+- [Java SDK JavaDoc for SQL API of Azure Cosmos DB](TO BE UPDATED)
 
 ## Contributing
 

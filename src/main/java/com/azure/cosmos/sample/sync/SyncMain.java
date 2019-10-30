@@ -11,6 +11,7 @@ import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosContainerProperties;
 import com.azure.cosmos.CosmosDatabase;
 import com.azure.cosmos.CosmosItemProperties;
+import com.azure.cosmos.CosmosItemRequestOptions;
 import com.azure.cosmos.CosmosItemResponse;
 import com.azure.cosmos.FeedOptions;
 import com.azure.cosmos.FeedResponse;
@@ -29,7 +30,7 @@ public class SyncMain {
     private CosmosClient client;
 
     private final String databaseName = "AzureSampleFamilyDB";
-    private final String collectionName = "FamilyCollection";
+    private final String containerName = "FamilyCollection";
 
     private CosmosDatabase database;
     private CosmosContainer container;
@@ -71,7 +72,7 @@ public class SyncMain {
             .buildClient();
 
         createDatabaseIfNotExists();
-        createDocumentCollectionIfNotExists();
+        createContainerIfNotExists();
 
         //  Setup family documents to create
         ArrayList<Family> familiesToCreate = new ArrayList<>();
@@ -95,13 +96,15 @@ public class SyncMain {
         System.out.println("Checking database " + database.getId() + " completed!\n");
     }
 
-    private void createDocumentCollectionIfNotExists() throws Exception {
-        System.out.println("Create collection " + collectionName + " if not exists.");
+    private void createContainerIfNotExists() throws Exception {
+        System.out.println("Create collection " + containerName + " if not exists.");
 
         //  Create collection if not exists
-        CosmosContainerProperties cosmosContainerProperties =
-            new CosmosContainerProperties(collectionName, "/my_pk");
-        container = database.createContainerIfNotExists(cosmosContainerProperties).getContainer();
+        CosmosContainerProperties containerProperties =
+            new CosmosContainerProperties(containerName, "/lastName");
+
+        //  Create container with 400 RU/s
+        container = database.createContainerIfNotExists(containerProperties, 400).getContainer();
 
         System.out.println("Checking collection " + container.getId() + " completed!\n");
     }
@@ -111,7 +114,10 @@ public class SyncMain {
         for (Family family : families) {
 
             //  Create item using container that we created using sync client
-            CosmosItemResponse item = container.createItem(family);
+
+            //  Use lastName as partitionKey for cosmos item
+            CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions(family.getLastName());
+            CosmosItemResponse item = container.createItem(family, cosmosItemRequestOptions);
 
             //  Get request charge and other properties like latency, and diagnostics strings, etc.
             System.out.println(String.format("Created document with request charge of %.2f within" +
