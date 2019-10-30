@@ -19,6 +19,7 @@ import com.azure.cosmos.Resource;
 import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
+import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -63,11 +64,16 @@ public class SyncMain {
     private void getStartedDemo() throws Exception {
         System.out.println("Using Azure Cosmos DB endpoint: " + AccountSettings.HOST);
 
+        ConnectionPolicy defaultPolicy = ConnectionPolicy.getDefaultPolicy();
+        //  Setting the preferred location to Cosmos DB Account region
+        //  West US is just an example. User should set this to their CosmosDB Account region
+        defaultPolicy.setPreferredLocations(Lists.newArrayList("West US"));
+
         //  Create sync client
         client = new CosmosClientBuilder()
             .setEndpoint(AccountSettings.HOST)
             .setKey(AccountSettings.MASTER_KEY)
-            .setConnectionPolicy(ConnectionPolicy.getDefaultPolicy())
+            .setConnectionPolicy(defaultPolicy)
             .setConsistencyLevel(ConsistencyLevel.EVENTUAL)
             .buildClient();
 
@@ -116,6 +122,7 @@ public class SyncMain {
             //  Create item using container that we created using sync client
 
             //  Use lastName as partitionKey for cosmos item
+            //  Using appropriate partition key improves the performance of database operations
             CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions(family.getLastName());
             CosmosItemResponse item = container.createItem(family, cosmosItemRequestOptions);
 
