@@ -48,6 +48,7 @@ public class SyncMain {
      *
      * @param args command line args.
      */
+    //  <MainRegion>
     public static void main(String[] args) {
         SyncMain p = new SyncMain();
 
@@ -64,6 +65,8 @@ public class SyncMain {
         System.exit(0);
     }
 
+    //  </MainRegion>
+
     private void getStartedDemo() throws Exception {
         System.out.println("Using Azure Cosmos DB endpoint: " + AccountSettings.HOST);
 
@@ -73,12 +76,15 @@ public class SyncMain {
         defaultPolicy.setPreferredLocations(Lists.newArrayList("West US"));
 
         //  Create sync client
+        //  <CreateSyncClientRegion>
         client = new CosmosClientBuilder()
             .setEndpoint(AccountSettings.HOST)
             .setKey(AccountSettings.MASTER_KEY)
             .setConnectionPolicy(defaultPolicy)
             .setConsistencyLevel(ConsistencyLevel.EVENTUAL)
             .buildClient();
+
+        //  </CreateSyncClientRegion>
 
         createDatabaseIfNotExists();
         createContainerIfNotExists();
@@ -103,7 +109,9 @@ public class SyncMain {
         System.out.println("Create database " + databaseName + " if not exists.");
 
         //  Create database if not exists
+        //  <CreateDatabaseIfNotExistsRegion>
         database = client.createDatabaseIfNotExists(databaseName).getDatabase();
+        //  </CreateDatabaseIfNotExistsRegion>
 
         System.out.println("Checking database " + database.getId() + " completed!\n");
     }
@@ -112,11 +120,13 @@ public class SyncMain {
         System.out.println("Create container " + containerName + " if not exists.");
 
         //  Create container if not exists
+        //  <CreateContainerIfNotExists>
         CosmosContainerProperties containerProperties =
             new CosmosContainerProperties(containerName, "/lastName");
 
         //  Create container with 400 RU/s
         container = database.createContainerIfNotExists(containerProperties, 400).getContainer();
+        //  </CreateContainerIfNotExists>
 
         System.out.println("Checking container " + container.getId() + " completed!\n");
     }
