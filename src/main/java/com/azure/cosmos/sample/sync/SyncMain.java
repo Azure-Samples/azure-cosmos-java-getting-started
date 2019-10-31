@@ -135,12 +135,14 @@ public class SyncMain {
         double totalRequestCharge = 0;
         for (Family family : families) {
 
+            //  <CreateItem>
             //  Create item using container that we created using sync client
 
             //  Use lastName as partitionKey for cosmos item
             //  Using appropriate partition key improves the performance of database operations
             CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions(family.getLastName());
             CosmosItemResponse item = container.createItem(family, cosmosItemRequestOptions);
+            //  </CreateItem>
 
             //  Get request charge and other properties like latency, and diagnostics strings, etc.
             System.out.println(String.format("Created item with request charge of %.2f within" +
@@ -158,6 +160,7 @@ public class SyncMain {
         //  Using partition key for point read scenarios.
         //  This will help fast look up of items because of partition key
         familiesToCreate.forEach(family -> {
+            //  <ReadItem>
             CosmosItem item = container.getItem(family.getId(), family.getLastName());
             try {
                 CosmosItemResponse read = item.read(new CosmosItemRequestOptions(family.getLastName()));
@@ -169,10 +172,12 @@ public class SyncMain {
                 e.printStackTrace();
                 System.err.println(String.format("Read Item failed with %s", e));
             }
+            //  </ReadItem>
         });
     }
 
     private void queryItems() {
+        //  <QueryItems>
         // Set some common query options
         FeedOptions queryOptions = new FeedOptions();
         queryOptions.maxItemCount(10);
@@ -194,5 +199,6 @@ public class SyncMain {
                 .map(Resource::getId)
                 .collect(Collectors.toList()));
         });
+        //  </QueryItems>
     }
 }
