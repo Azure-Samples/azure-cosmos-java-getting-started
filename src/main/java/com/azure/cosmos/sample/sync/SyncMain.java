@@ -48,7 +48,7 @@ public class SyncMain {
      *
      * @param args command line args.
      */
-    //  <MainRegion>
+    //  <Main>
     public static void main(String[] args) {
         SyncMain p = new SyncMain();
 
@@ -65,7 +65,7 @@ public class SyncMain {
         System.exit(0);
     }
 
-    //  </MainRegion>
+    //  </Main>
 
     private void getStartedDemo() throws Exception {
         System.out.println("Using Azure Cosmos DB endpoint: " + AccountSettings.HOST);
@@ -76,7 +76,7 @@ public class SyncMain {
         defaultPolicy.setPreferredLocations(Lists.newArrayList("West US"));
 
         //  Create sync client
-        //  <CreateSyncClientRegion>
+        //  <CreateSyncClient>
         client = new CosmosClientBuilder()
             .setEndpoint(AccountSettings.HOST)
             .setKey(AccountSettings.MASTER_KEY)
@@ -84,7 +84,7 @@ public class SyncMain {
             .setConsistencyLevel(ConsistencyLevel.EVENTUAL)
             .buildClient();
 
-        //  </CreateSyncClientRegion>
+        //  </CreateSyncClient>
 
         createDatabaseIfNotExists();
         createContainerIfNotExists();
@@ -109,9 +109,9 @@ public class SyncMain {
         System.out.println("Create database " + databaseName + " if not exists.");
 
         //  Create database if not exists
-        //  <CreateDatabaseIfNotExistsRegion>
+        //  <CreateDatabaseIfNotExists>
         database = client.createDatabaseIfNotExists(databaseName).getDatabase();
-        //  </CreateDatabaseIfNotExistsRegion>
+        //  </CreateDatabaseIfNotExists>
 
         System.out.println("Checking database " + database.getId() + " completed!\n");
     }
