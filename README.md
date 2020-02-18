@@ -44,6 +44,14 @@ mvn clean package
 mvn exec:java -DACCOUNT_HOST=YOUR_COSMOS_DB_HOSTNAME -DACCOUNT_KEY=YOUR_COSMOS_DB_MASTER_KEY
 ```
 
+* This demo has both sync and async modes and async is default;  open *pom.xml* and you will see the async main class selected:
+
+   `<mainClass>com.azure.cosmos.sample.async.AsyncMain</mainClass>`
+
+   Run in sync mode by making the following *pom.xml* change:
+
+   `<mainClass>com.azure.cosmos.sample.sync.SyncMain</mainClass>`
+
 ## About the code
 
 The code included in this sample is intended to get you quickly started with a Java application that connects to Azure Cosmos DB with the SQL API.

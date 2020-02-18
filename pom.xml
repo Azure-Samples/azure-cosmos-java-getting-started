@@ -26,7 +26,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.6.0</version>
         <configuration>
-          <mainClass>com.azure.cosmos.sample.sync.SyncMain</mainClass>
+          <mainClass>com.azure.cosmos.sample.async.AsyncMain</mainClass>
         </configuration>
       </plugin>
       <plugin>
