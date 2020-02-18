@@ -3,22 +3,7 @@
 
 package com.azure.cosmos.sample.async;
 
-import com.azure.cosmos.ConnectionPolicy;
-import com.azure.cosmos.ConsistencyLevel;
-import com.azure.cosmos.CosmosAsyncClient;
-import com.azure.cosmos.CosmosClientBuilder;
-import com.azure.cosmos.CosmosClientException;
-import com.azure.cosmos.CosmosAsyncContainer;
-import com.azure.cosmos.CosmosAsyncContainerResponse;
-import com.azure.cosmos.CosmosContainerProperties;
-import com.azure.cosmos.CosmosAsyncDatabase;
-import com.azure.cosmos.CosmosAsyncDatabaseResponse;
-import com.azure.cosmos.CosmosAsyncItem;
-import com.azure.cosmos.CosmosItemProperties;
-import com.azure.cosmos.CosmosItemRequestOptions;
-import com.azure.cosmos.FeedOptions;
-import com.azure.cosmos.FeedResponse;
-import com.azure.cosmos.Resource;
+import com.azure.cosmos.*;
 import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
@@ -158,8 +143,7 @@ public class AsyncMain {
 
         //  Combine multiple item inserts, associated success println's, and a final aggregate stats println into one Reactive stream.
         families.flatMap(family -> {
-                CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions(family.getLastName());
-                return container.createItem(family, cosmosItemRequestOptions);
+                return container.createItem(family);
             }) //Flux of item request responses
             .flatMap(itemResponse -> {
                 System.out.println(String.format("Created item with request charge of %.2f within" +
@@ -249,7 +233,7 @@ public class AsyncMain {
 
         FeedOptions queryOptions = new FeedOptions();
         queryOptions.maxItemCount(10);
-        queryOptions.setEnableCrossPartitionQuery(true);
+        //queryOptions.setEnableCrossPartitionQuery(true); //No longer needed in SDK v4
         //  Set populate query metrics to get metrics around query executions
         queryOptions.populateQueryMetrics(true);
 

@@ -11,8 +11,6 @@ import com.azure.cosmos.CosmosClientException;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosContainerProperties;
 import com.azure.cosmos.CosmosDatabase;
-import com.azure.cosmos.CosmosItem;
-import com.azure.cosmos.CosmosItemProperties;
 import com.azure.cosmos.CosmosItemRequestOptions;
 import com.azure.cosmos.CosmosItemResponse;
 import com.azure.cosmos.FeedOptions;
@@ -181,7 +179,7 @@ public class SyncMain {
         // Set some common query options
         FeedOptions queryOptions = new FeedOptions();
         queryOptions.maxItemCount(10);
-        queryOptions.setEnableCrossPartitionQuery(true);
+        //queryOptions.setEnableCrossPartitionQuery(true); //No longer necessary in SDK v4
         //  Set populate query metrics to get metrics around query executions
         queryOptions.populateQueryMetrics(true);
 
