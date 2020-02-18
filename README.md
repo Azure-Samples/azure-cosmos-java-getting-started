@@ -38,10 +38,17 @@ cd azure-cosmos-java-getting-started
 mvn clean package
 ```
 
-* From a command prompt or shell, run the following command to run the application.
+* This demo has both sync and async modes.
+* From a command prompt or shell, run the following command to run the SYNC application.
 
 ```bash
-mvn exec:java -DACCOUNT_HOST=YOUR_COSMOS_DB_HOSTNAME -DACCOUNT_KEY=YOUR_COSMOS_DB_MASTER_KEY
+mvn exec:java@sync -DACCOUNT_HOST=YOUR_COSMOS_DB_HOSTNAME -DACCOUNT_KEY=YOUR_COSMOS_DB_MASTER_KEY
+```
+
+* From a command prompt or shell, run the following command to run the ASYNC application.
+
+```bash
+mvn exec:java@async -DACCOUNT_HOST=YOUR_COSMOS_DB_HOSTNAME -DACCOUNT_KEY=YOUR_COSMOS_DB_MASTER_KEY
 ```
 
 ## About the code
