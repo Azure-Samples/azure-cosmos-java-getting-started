@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="azure-cosmos-java-getting-started" target="8" />
+      <module name="azure-cosmos-java-getting-started" target="1.8" />
       <module name="SDKJarSkeleton" target="8" />
     </bytecodeTargetLevel>
   </component>

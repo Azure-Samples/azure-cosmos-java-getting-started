@@ -10,12 +10,12 @@ import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosClientException;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosContainerProperties;
+import com.azure.cosmos.CosmosContinuablePagedIterable;
 import com.azure.cosmos.CosmosDatabase;
 import com.azure.cosmos.CosmosItemRequestOptions;
 import com.azure.cosmos.CosmosItemResponse;
 import com.azure.cosmos.FeedOptions;
-import com.azure.cosmos.FeedResponse;
-import com.azure.cosmos.Resource;
+import com.azure.cosmos.PartitionKey;
 import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,6 +50,7 @@ public class SyncMain {
         SyncMain p = new SyncMain();
 
         try {
+            System.out.println("Starting SYNC main");
             p.getStartedDemo();
             System.out.println("Demo complete, please hold while resources are released");
         } catch (Exception e) {
@@ -138,8 +138,8 @@ public class SyncMain {
 
             //  Use lastName as partitionKey for cosmos item
             //  Using appropriate partition key improves the performance of database operations
-            CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions(family.getLastName());
-            CosmosItemResponse item = container.createItem(family, cosmosItemRequestOptions);
+            CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
+            CosmosItemResponse<Family> item = container.createItem(family, new PartitionKey(family.getLastName()), cosmosItemRequestOptions);
             //  </CreateItem>
 
             //  Get request charge and other properties like latency, and diagnostics strings, etc.
@@ -159,13 +159,12 @@ public class SyncMain {
         //  This will help fast look up of items because of partition key
         familiesToCreate.forEach(family -> {
             //  <ReadItem>
-            CosmosItem item = container.getItem(family.getId(), family.getLastName());
             try {
-                CosmosItemResponse read = item.read(new CosmosItemRequestOptions(family.getLastName()));
-                double requestCharge = read.getRequestCharge();
-                Duration requestLatency = read.getRequestLatency();
+                CosmosItemResponse<Family> item = container.readItem(family.getId(), new PartitionKey(family.getLastName()), Family.class);
+                double requestCharge = item.getRequestCharge();
+                Duration requestLatency = item.getRequestLatency();
                 System.out.println(String.format("Item successfully read with id %s with a charge of %.2f and within duration %s",
-                    read.getItem().getId(), requestCharge, requestLatency));
+                    item.getResource().getId(), requestCharge, requestLatency));
             } catch (CosmosClientException e) {
                 e.printStackTrace();
                 System.err.println(String.format("Read Item failed with %s", e));
@@ -183,10 +182,10 @@ public class SyncMain {
         //  Set populate query metrics to get metrics around query executions
         queryOptions.populateQueryMetrics(true);
 
-        Iterator<FeedResponse<CosmosItemProperties>> feedResponseIterator = container.queryItems(
-            "SELECT * FROM Family WHERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions);
+        CosmosContinuablePagedIterable<Family> familiesPagedIterable = container.queryItems(
+                "SELECT * FROM Family WHERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
 
-        feedResponseIterator.forEachRemaining(cosmosItemPropertiesFeedResponse -> {
+        familiesPagedIterable.iterableByPage().forEach(cosmosItemPropertiesFeedResponse -> {
             System.out.println("Got a page of query result with " +
                 cosmosItemPropertiesFeedResponse.getResults().size() + " items(s)"
                 + " and request charge of " + cosmosItemPropertiesFeedResponse.getRequestCharge());
@@ -194,7 +193,7 @@ public class SyncMain {
             System.out.println("Item Ids " + cosmosItemPropertiesFeedResponse
                 .getResults()
                 .stream()
-                .map(Resource::getId)
+                .map(Family::getId)
                 .collect(Collectors.toList()));
         });
         //  </QueryItems>
