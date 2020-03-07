@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
  * For running tests, you can pass a customized endpoint configuration in one of the following
  * ways:
  * <ul>
- * <li>-DACCOUNT_KEY="[your-key]" -ACCOUNT_HOST="[your-endpoint]" as JVM
+ * <li>-DACCOUNT_KEY="[your-key]" -DACCOUNT_HOST="[your-endpoint]" as JVM
  * command-line option.</li>
  * <li>You can set ACCOUNT_KEY and ACCOUNT_HOST as environment variables.</li>
  * </ul>
