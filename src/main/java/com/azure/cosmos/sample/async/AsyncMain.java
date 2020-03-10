@@ -7,16 +7,16 @@ import com.azure.cosmos.ConnectionPolicy;
 import com.azure.cosmos.ConsistencyLevel;
 import com.azure.cosmos.CosmosAsyncClient;
 import com.azure.cosmos.CosmosAsyncContainer;
-import com.azure.cosmos.CosmosAsyncContainerResponse;
 import com.azure.cosmos.CosmosAsyncDatabase;
-import com.azure.cosmos.CosmosAsyncDatabaseResponse;
-import com.azure.cosmos.CosmosAsyncItemResponse;
 import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosClientException;
-import com.azure.cosmos.CosmosContainerProperties;
-import com.azure.cosmos.CosmosContinuablePagedFlux;
-import com.azure.cosmos.FeedOptions;
-import com.azure.cosmos.PartitionKey;
+import com.azure.cosmos.CosmosPagedFlux;
+import com.azure.cosmos.models.CosmosAsyncContainerResponse;
+import com.azure.cosmos.models.CosmosAsyncDatabaseResponse;
+import com.azure.cosmos.models.CosmosAsyncItemResponse;
+import com.azure.cosmos.models.CosmosContainerProperties;
+import com.azure.cosmos.models.FeedOptions;
+import com.azure.cosmos.models.PartitionKey;
 import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
@@ -161,7 +161,7 @@ public class AsyncMain {
                 System.out.println(String.format("Created item with request charge of %.2f within" +
                     " duration %s",
                     itemResponse.getRequestCharge(), itemResponse.getRequestLatency()));
-                System.out.println(String.format("Item ID: %s\n", itemResponse.getResource().getId()));
+                System.out.println(String.format("Item ID: %s\n", itemResponse.getItem().getId()));
                 return Mono.just(itemResponse.getRequestCharge());
             }) //Flux of request charges
             .reduce(0.0, 
@@ -212,7 +212,7 @@ public class AsyncMain {
                                 double requestCharge = itemResponse.getRequestCharge();
                                 Duration requestLatency = itemResponse.getRequestLatency();
                                 System.out.println(String.format("Item successfully read with id %s with a charge of %.2f and within duration %s",
-                                    itemResponse.getResource().getId(), requestCharge, requestLatency));
+                                    itemResponse.getItem().getId(), requestCharge, requestLatency));
                             },
                             err -> {
                                 if (err instanceof CosmosClientException) {
@@ -244,17 +244,16 @@ public class AsyncMain {
         // Set some common query options
 
         FeedOptions queryOptions = new FeedOptions();
-        queryOptions.maxItemCount(10);
         //queryOptions.setEnableCrossPartitionQuery(true); //No longer needed in SDK v4
         //  Set populate query metrics to get metrics around query executions
-        queryOptions.populateQueryMetrics(true);
+        queryOptions.setPopulateQueryMetrics(true);
 
-        CosmosContinuablePagedFlux<Family> pagedFluxResponse = container.queryItems(
+        CosmosPagedFlux<Family> pagedFluxResponse = container.queryItems(
             "SELECT * FROM Family WHERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
 
         final CountDownLatch completionLatch = new CountDownLatch(1);
 
-        pagedFluxResponse.byPage().subscribe(
+        pagedFluxResponse.byPage(10).subscribe(
             fluxResponse -> {
                 System.out.println("Got a page of query result with " +
                     fluxResponse.getResults().size() + " items(s)"

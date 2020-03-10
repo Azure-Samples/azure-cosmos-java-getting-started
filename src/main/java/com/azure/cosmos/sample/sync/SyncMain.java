@@ -9,13 +9,13 @@ import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosClientException;
 import com.azure.cosmos.CosmosContainer;
-import com.azure.cosmos.CosmosContainerProperties;
-import com.azure.cosmos.CosmosContinuablePagedIterable;
 import com.azure.cosmos.CosmosDatabase;
-import com.azure.cosmos.CosmosItemRequestOptions;
-import com.azure.cosmos.CosmosItemResponse;
-import com.azure.cosmos.FeedOptions;
-import com.azure.cosmos.PartitionKey;
+import com.azure.cosmos.CosmosPagedIterable;
+import com.azure.cosmos.models.CosmosContainerProperties;
+import com.azure.cosmos.models.CosmosItemRequestOptions;
+import com.azure.cosmos.models.CosmosItemResponse;
+import com.azure.cosmos.models.FeedOptions;
+import com.azure.cosmos.models.PartitionKey;
 import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
@@ -177,15 +177,14 @@ public class SyncMain {
         //  <QueryItems>
         // Set some common query options
         FeedOptions queryOptions = new FeedOptions();
-        queryOptions.maxItemCount(10);
         //queryOptions.setEnableCrossPartitionQuery(true); //No longer necessary in SDK v4
         //  Set populate query metrics to get metrics around query executions
-        queryOptions.populateQueryMetrics(true);
+        queryOptions.setPopulateQueryMetrics(true);
 
-        CosmosContinuablePagedIterable<Family> familiesPagedIterable = container.queryItems(
-                "SELECT * FROM Family WHERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
+        CosmosPagedIterable<Family> familiesPagedIterable = container.queryItems(
+            "SELECT * FROM Family WHfERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
 
-        familiesPagedIterable.iterableByPage().forEach(cosmosItemPropertiesFeedResponse -> {
+        familiesPagedIterable.iterableByPage(10).forEach(cosmosItemPropertiesFeedResponse -> {
             System.out.println("Got a page of query result with " +
                 cosmosItemPropertiesFeedResponse.getResults().size() + " items(s)"
                 + " and request charge of " + cosmosItemPropertiesFeedResponse.getRequestCharge());
