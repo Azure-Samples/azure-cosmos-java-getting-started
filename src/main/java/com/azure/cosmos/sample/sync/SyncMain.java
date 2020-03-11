@@ -182,7 +182,7 @@ public class SyncMain {
         queryOptions.setPopulateQueryMetrics(true);
 
         CosmosPagedIterable<Family> familiesPagedIterable = container.queryItems(
-            "SELECT * FROM Family WHfERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
+            "SELECT * FROM Family WHERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
 
         familiesPagedIterable.iterableByPage(10).forEach(cosmosItemPropertiesFeedResponse -> {
             System.out.println("Got a page of query result with " +
