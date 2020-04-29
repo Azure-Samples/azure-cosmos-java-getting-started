@@ -10,7 +10,7 @@ import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosClientException;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosDatabase;
-import com.azure.cosmos.CosmosPagedIterable;
+import com.azure.cosmos.implementation.guava25.collect.Lists;
 import com.azure.cosmos.models.CosmosContainerProperties;
 import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.azure.cosmos.models.CosmosItemResponse;
@@ -19,7 +19,7 @@ import com.azure.cosmos.models.PartitionKey;
 import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
-import com.google.common.collect.Lists;
+import com.azure.cosmos.util.CosmosPagedIterable;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -76,10 +76,10 @@ public class SyncMain {
         //  Create sync client
         //  <CreateSyncClient>
         client = new CosmosClientBuilder()
-            .setEndpoint(AccountSettings.HOST)
-            .setKey(AccountSettings.MASTER_KEY)
-            .setConnectionPolicy(defaultPolicy)
-            .setConsistencyLevel(ConsistencyLevel.EVENTUAL)
+            .endpoint(AccountSettings.HOST)
+            .key(AccountSettings.MASTER_KEY)
+            .connectionPolicy(defaultPolicy)
+            .consistencyLevel(ConsistencyLevel.EVENTUAL)
             .buildClient();
 
         //  </CreateSyncClient>
@@ -164,7 +164,7 @@ public class SyncMain {
                 double requestCharge = item.getRequestCharge();
                 Duration requestLatency = item.getRequestLatency();
                 System.out.println(String.format("Item successfully read with id %s with a charge of %.2f and within duration %s",
-                    item.getResource().getId(), requestCharge, requestLatency));
+                    item.getItem().getId(), requestCharge, requestLatency));
             } catch (CosmosClientException e) {
                 e.printStackTrace();
                 System.err.println(String.format("Read Item failed with %s", e));

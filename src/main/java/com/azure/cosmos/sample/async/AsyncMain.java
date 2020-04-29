@@ -10,7 +10,7 @@ import com.azure.cosmos.CosmosAsyncContainer;
 import com.azure.cosmos.CosmosAsyncDatabase;
 import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosClientException;
-import com.azure.cosmos.CosmosPagedFlux;
+import com.azure.cosmos.implementation.guava25.collect.Lists;
 import com.azure.cosmos.models.CosmosAsyncContainerResponse;
 import com.azure.cosmos.models.CosmosAsyncDatabaseResponse;
 import com.azure.cosmos.models.CosmosAsyncItemResponse;
@@ -20,7 +20,7 @@ import com.azure.cosmos.models.PartitionKey;
 import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
-import com.google.common.collect.Lists;
+import com.azure.cosmos.util.CosmosPagedFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -78,10 +78,10 @@ public class AsyncMain {
         //  Create async client
         //  <CreateAsyncClient>
         client = new CosmosClientBuilder()
-            .setEndpoint(AccountSettings.HOST)
-            .setKey(AccountSettings.MASTER_KEY)
-            .setConnectionPolicy(defaultPolicy)
-            .setConsistencyLevel(ConsistencyLevel.EVENTUAL)
+            .endpoint(AccountSettings.HOST)
+            .key(AccountSettings.MASTER_KEY)
+            .connectionPolicy(defaultPolicy)
+            .consistencyLevel(ConsistencyLevel.EVENTUAL)
             .buildAsyncClient();
 
         //  </CreateAsyncClient>
