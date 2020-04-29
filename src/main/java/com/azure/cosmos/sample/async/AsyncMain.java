@@ -10,7 +10,6 @@ import com.azure.cosmos.CosmosAsyncContainer;
 import com.azure.cosmos.CosmosAsyncDatabase;
 import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosClientException;
-import com.azure.cosmos.implementation.guava25.collect.Lists;
 import com.azure.cosmos.models.CosmosAsyncContainerResponse;
 import com.azure.cosmos.models.CosmosAsyncDatabaseResponse;
 import com.azure.cosmos.models.CosmosAsyncItemResponse;
@@ -25,6 +24,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -73,7 +73,7 @@ public class AsyncMain {
         ConnectionPolicy defaultPolicy = ConnectionPolicy.getDefaultPolicy();
         //  Setting the preferred location to Cosmos DB Account region
         //  West US is just an example. User should set preferred location to the Cosmos DB region closest to the application
-        defaultPolicy.setPreferredLocations(Lists.newArrayList("West US"));
+        defaultPolicy.setPreferredLocations(Collections.singletonList("West US"));
 
         //  Create async client
         //  <CreateAsyncClient>

@@ -3,7 +3,7 @@
 
 package com.azure.cosmos.sample.common;
 
-import com.azure.cosmos.implementation.apachecommons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Contains the account configurations for Sample.

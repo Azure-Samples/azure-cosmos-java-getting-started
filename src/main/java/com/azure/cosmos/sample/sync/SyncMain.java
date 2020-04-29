@@ -10,7 +10,6 @@ import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosClientException;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosDatabase;
-import com.azure.cosmos.implementation.guava25.collect.Lists;
 import com.azure.cosmos.models.CosmosContainerProperties;
 import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.azure.cosmos.models.CosmosItemResponse;
@@ -23,6 +22,7 @@ import com.azure.cosmos.util.CosmosPagedIterable;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,7 +71,7 @@ public class SyncMain {
         ConnectionPolicy defaultPolicy = ConnectionPolicy.getDefaultPolicy();
         //  Setting the preferred location to Cosmos DB Account region
         //  West US is just an example. User should set preferred location to the Cosmos DB region closest to the application
-        defaultPolicy.setPreferredLocations(Lists.newArrayList("West US"));
+        defaultPolicy.setPreferredLocations(Collections.singletonList("West US"));
 
         //  Create sync client
         //  <CreateSyncClient>
