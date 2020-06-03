@@ -3,18 +3,20 @@
 
 package com.azure.cosmos.sample.sync;
 
-import com.azure.cosmos.ConnectionPolicy;
 import com.azure.cosmos.ConsistencyLevel;
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosClientBuilder;
-import com.azure.cosmos.CosmosClientException;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosDatabase;
+import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.models.CosmosContainerProperties;
+import com.azure.cosmos.models.CosmosContainerResponse;
+import com.azure.cosmos.models.CosmosDatabaseResponse;
 import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.azure.cosmos.models.CosmosItemResponse;
-import com.azure.cosmos.models.FeedOptions;
 import com.azure.cosmos.models.PartitionKey;
+import com.azure.cosmos.models.QueryRequestOptions;
+import com.azure.cosmos.models.ThroughputProperties;
 import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
@@ -68,17 +70,14 @@ public class SyncMain {
     private void getStartedDemo() throws Exception {
         System.out.println("Using Azure Cosmos DB endpoint: " + AccountSettings.HOST);
 
-        ConnectionPolicy defaultPolicy = ConnectionPolicy.getDefaultPolicy();
-        //  Setting the preferred location to Cosmos DB Account region
-        //  West US is just an example. User should set preferred location to the Cosmos DB region closest to the application
-        defaultPolicy.setPreferredLocations(Collections.singletonList("West US"));
-
         //  Create sync client
         //  <CreateSyncClient>
         client = new CosmosClientBuilder()
             .endpoint(AccountSettings.HOST)
             .key(AccountSettings.MASTER_KEY)
-            .connectionPolicy(defaultPolicy)
+            //  Setting the preferred location to Cosmos DB Account region
+            //  West US is just an example. User should set preferred location to the Cosmos DB region closest to the application
+            .preferredRegions(Collections.singletonList("West US"))
             .consistencyLevel(ConsistencyLevel.EVENTUAL)
             .buildClient();
 
@@ -108,7 +107,8 @@ public class SyncMain {
 
         //  Create database if not exists
         //  <CreateDatabaseIfNotExists>
-        database = client.createDatabaseIfNotExists(databaseName).getDatabase();
+        CosmosDatabaseResponse cosmosDatabaseResponse = client.createDatabaseIfNotExists(databaseName);
+        database = client.getDatabase(cosmosDatabaseResponse.getProperties().getId());
         //  </CreateDatabaseIfNotExists>
 
         System.out.println("Checking database " + database.getId() + " completed!\n");
@@ -123,7 +123,9 @@ public class SyncMain {
             new CosmosContainerProperties(containerName, "/lastName");
 
         //  Create container with 400 RU/s
-        container = database.createContainerIfNotExists(containerProperties, 400).getContainer();
+        CosmosContainerResponse cosmosContainerResponse =
+            database.createContainerIfNotExists(containerProperties, ThroughputProperties.createManualThroughput(400));
+        container = database.getContainer(cosmosContainerResponse.getProperties().getId());
         //  </CreateContainerIfNotExists>
 
         System.out.println("Checking container " + container.getId() + " completed!\n");
@@ -145,7 +147,7 @@ public class SyncMain {
             //  Get request charge and other properties like latency, and diagnostics strings, etc.
             System.out.println(String.format("Created item with request charge of %.2f within" +
                     " duration %s",
-                item.getRequestCharge(), item.getRequestLatency()));
+                item.getRequestCharge(), item.getDuration()));
             totalRequestCharge += item.getRequestCharge();
         }
         System.out.println(String.format("Created %d items with total request " +
@@ -162,10 +164,10 @@ public class SyncMain {
             try {
                 CosmosItemResponse<Family> item = container.readItem(family.getId(), new PartitionKey(family.getLastName()), Family.class);
                 double requestCharge = item.getRequestCharge();
-                Duration requestLatency = item.getRequestLatency();
+                Duration requestLatency = item.getDuration();
                 System.out.println(String.format("Item successfully read with id %s with a charge of %.2f and within duration %s",
                     item.getItem().getId(), requestCharge, requestLatency));
-            } catch (CosmosClientException e) {
+            } catch (CosmosException e) {
                 e.printStackTrace();
                 System.err.println(String.format("Read Item failed with %s", e));
             }
@@ -176,13 +178,13 @@ public class SyncMain {
     private void queryItems() {
         //  <QueryItems>
         // Set some common query options
-        FeedOptions queryOptions = new FeedOptions();
+        QueryRequestOptions queryOptions = new QueryRequestOptions();
         //queryOptions.setEnableCrossPartitionQuery(true); //No longer necessary in SDK v4
-        //  Set populate query metrics to get metrics around query executions
-        queryOptions.setPopulateQueryMetrics(true);
+        //  Set query metrics enabled to get metrics around query executions
+        queryOptions.setQueryMetricsEnabled(true);
 
         CosmosPagedIterable<Family> familiesPagedIterable = container.queryItems(
-            "SELECT * FROM Family WHfERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
+            "SELECT * FROM Family WHERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
 
         familiesPagedIterable.iterableByPage(10).forEach(cosmosItemPropertiesFeedResponse -> {
             System.out.println("Got a page of query result with " +
