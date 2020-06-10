@@ -14,7 +14,7 @@ import com.azure.cosmos.models.CosmosContainerResponse;
 import com.azure.cosmos.models.CosmosDatabaseResponse;
 import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.PartitionKey;
-import com.azure.cosmos.models.QueryRequestOptions;
+import com.azure.cosmos.models.CosmosQueryRequestOptions;
 import com.azure.cosmos.models.ThroughputProperties;
 import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
@@ -242,7 +242,7 @@ public class AsyncMain {
         //  <QueryItems>
         // Set some common query options
 
-        QueryRequestOptions queryOptions = new QueryRequestOptions();
+        CosmosQueryRequestOptions queryOptions = new CosmosQueryRequestOptions();
         //  Set query metrics enabled to get metrics around query executions
         queryOptions.setQueryMetricsEnabled(true);
 
