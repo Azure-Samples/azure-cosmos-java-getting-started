@@ -60,7 +60,7 @@ The code included in this sample is intended to get you quickly started with a J
 - [Azure Cosmos DB](https://docs.microsoft.com/azure/cosmos-db/introduction)
 - [Azure Cosmos DB : SQL API](https://docs.microsoft.com/azure/cosmos-db/sql-api-introduction)
 - [Java SDK Github for SQL API of Azure Cosmos DB](https://github.com/Azure/azure-sdk-for-java/tree/feature/cosmos/v4/sdk/cosmos)
-- [Java SDK JavaDoc for SQL API of Azure Cosmos DB](TO BE UPDATED)
+- [Java SDK JavaDoc for SQL API of Azure Cosmos DB](https://azuresdkdocs.blob.core.windows.net/$web/java/azure-cosmos/latest/index.html)
 
 ## Contributing
 
