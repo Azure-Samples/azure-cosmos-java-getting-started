@@ -20,6 +20,8 @@ import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
 import com.azure.cosmos.util.CosmosPagedFlux;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -36,6 +38,8 @@ public class AsyncMain {
 
     private CosmosAsyncDatabase database;
     private CosmosAsyncContainer container;
+
+    protected static Logger logger = LoggerFactory.getLogger(SampleChangeFeedProcessor.class.getSimpleName());
 
     public void close() {
         client.close();
