@@ -39,7 +39,7 @@ public class AsyncMain {
     private CosmosAsyncDatabase database;
     private CosmosAsyncContainer container;
 
-    protected static Logger logger = LoggerFactory.getLogger(SampleChangeFeedProcessor.class.getSimpleName());
+    protected static Logger logger = LoggerFactory.getLogger(AsyncMain.class.getSimpleName());
 
     public void close() {
         client.close();
