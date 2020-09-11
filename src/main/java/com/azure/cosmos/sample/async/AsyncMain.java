@@ -3,28 +3,28 @@
 
 package com.azure.cosmos.sample.async;
 
-import com.azure.cosmos.ConnectionPolicy;
 import com.azure.cosmos.ConsistencyLevel;
 import com.azure.cosmos.CosmosAsyncClient;
 import com.azure.cosmos.CosmosAsyncContainer;
-import com.azure.cosmos.CosmosAsyncContainerResponse;
 import com.azure.cosmos.CosmosAsyncDatabase;
-import com.azure.cosmos.CosmosAsyncDatabaseResponse;
-import com.azure.cosmos.CosmosAsyncItemResponse;
 import com.azure.cosmos.CosmosClientBuilder;
-import com.azure.cosmos.CosmosClientException;
-import com.azure.cosmos.CosmosContainerProperties;
-import com.azure.cosmos.CosmosContinuablePagedFlux;
-import com.azure.cosmos.FeedOptions;
-import com.azure.cosmos.PartitionKey;
+import com.azure.cosmos.CosmosException;
+import com.azure.cosmos.models.CosmosContainerProperties;
+import com.azure.cosmos.models.CosmosContainerResponse;
+import com.azure.cosmos.models.CosmosDatabaseResponse;
+import com.azure.cosmos.models.CosmosItemResponse;
+import com.azure.cosmos.models.PartitionKey;
+import com.azure.cosmos.models.CosmosQueryRequestOptions;
+import com.azure.cosmos.models.ThroughputProperties;
 import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
-import com.google.common.collect.Lists;
+import com.azure.cosmos.util.CosmosPagedFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -70,18 +70,17 @@ public class AsyncMain {
     private void getStartedDemo() throws Exception {
         System.out.println("Using Azure Cosmos DB endpoint: " + AccountSettings.HOST);
 
-        ConnectionPolicy defaultPolicy = ConnectionPolicy.getDefaultPolicy();
-        //  Setting the preferred location to Cosmos DB Account region
-        //  West US is just an example. User should set preferred location to the Cosmos DB region closest to the application
-        defaultPolicy.setPreferredLocations(Lists.newArrayList("West US"));
-
         //  Create async client
         //  <CreateAsyncClient>
         client = new CosmosClientBuilder()
-            .setEndpoint(AccountSettings.HOST)
-            .setKey(AccountSettings.MASTER_KEY)
-            .setConnectionPolicy(defaultPolicy)
-            .setConsistencyLevel(ConsistencyLevel.EVENTUAL)
+            .endpoint(AccountSettings.HOST)
+            .key(AccountSettings.MASTER_KEY)
+            //  Setting the preferred location to Cosmos DB Account region
+            //  West US is just an example. User should set preferred location to the Cosmos DB region closest to the application
+            .preferredRegions(Collections.singletonList("West US"))
+            .consistencyLevel(ConsistencyLevel.EVENTUAL)
+            //  Setting content response on write enabled, which enables the SDK to return response on write operations.
+            .contentResponseOnWriteEnabled(true)
             .buildAsyncClient();
 
         //  </CreateAsyncClient>
@@ -119,9 +118,9 @@ public class AsyncMain {
 
         //  Create database if not exists
         //  <CreateDatabaseIfNotExists>
-        Mono<CosmosAsyncDatabaseResponse> databaseIfNotExists = client.createDatabaseIfNotExists(databaseName);
-        databaseIfNotExists.flatMap(databaseResponse -> {
-            database = databaseResponse.getDatabase();
+        Mono<CosmosDatabaseResponse> databaseResponseMono = client.createDatabaseIfNotExists(databaseName);
+        databaseResponseMono.flatMap(databaseResponse -> {
+            database = client.getDatabase(databaseResponse.getProperties().getId());
             System.out.println("Checking database " + database.getId() + " completed!\n");
             return Mono.empty();
         }).block();
@@ -135,11 +134,11 @@ public class AsyncMain {
         //  <CreateContainerIfNotExists>
 
         CosmosContainerProperties containerProperties = new CosmosContainerProperties(containerName, "/lastName");
-        Mono<CosmosAsyncContainerResponse> containerIfNotExists = database.createContainerIfNotExists(containerProperties, 400);
+        Mono<CosmosContainerResponse> containerResponseMono = database.createContainerIfNotExists(containerProperties, ThroughputProperties.createManualThroughput(400));
         
         //  Create container with 400 RU/s
-        containerIfNotExists.flatMap(containerResponse -> {
-            container = containerResponse.getContainer();
+        containerResponseMono.flatMap(containerResponse -> {
+            container = database.getContainer(containerResponse.getProperties().getId());
             System.out.println("Checking container " + container.getId() + " completed!\n");
             return Mono.empty();
         }).block();
@@ -160,8 +159,8 @@ public class AsyncMain {
             .flatMap(itemResponse -> {
                 System.out.println(String.format("Created item with request charge of %.2f within" +
                     " duration %s",
-                    itemResponse.getRequestCharge(), itemResponse.getRequestLatency()));
-                System.out.println(String.format("Item ID: %s\n", itemResponse.getResource().getId()));
+                    itemResponse.getRequestCharge(), itemResponse.getDuration()));
+                System.out.println(String.format("Item ID: %s\n", itemResponse.getItem().getId()));
                 return Mono.just(itemResponse.getRequestCharge());
             }) //Flux of request charges
             .reduce(0.0, 
@@ -172,9 +171,9 @@ public class AsyncMain {
                 charge));         
             }, 
                 err -> {
-                    if (err instanceof CosmosClientException) {
+                    if (err instanceof CosmosException) {
                         //Client-specific errors
-                        CosmosClientException cerr = (CosmosClientException)err;
+                        CosmosException cerr = (CosmosException)err;
                         cerr.printStackTrace();
                         System.err.println(String.format("Read Item failed with %s\n", cerr));
                     } else {
@@ -204,20 +203,20 @@ public class AsyncMain {
         final CountDownLatch completionLatch = new CountDownLatch(1);
         
         familiesToCreate.flatMap(family -> {
-                            Mono<CosmosAsyncItemResponse<Family>> asyncItemResponseMono = container.readItem(family.getId(), new PartitionKey(family.getLastName()), Family.class);
+                            Mono<CosmosItemResponse<Family>> asyncItemResponseMono = container.readItem(family.getId(), new PartitionKey(family.getLastName()), Family.class);
                             return asyncItemResponseMono;
                         })
                         .subscribe(
                             itemResponse -> {
                                 double requestCharge = itemResponse.getRequestCharge();
-                                Duration requestLatency = itemResponse.getRequestLatency();
+                                Duration requestLatency = itemResponse.getDuration();
                                 System.out.println(String.format("Item successfully read with id %s with a charge of %.2f and within duration %s",
-                                    itemResponse.getResource().getId(), requestCharge, requestLatency));
+                                    itemResponse.getItem().getId(), requestCharge, requestLatency));
                             },
                             err -> {
-                                if (err instanceof CosmosClientException) {
+                                if (err instanceof CosmosException) {
                                     //Client-specific errors
-                                    CosmosClientException cerr = (CosmosClientException)err;
+                                    CosmosException cerr = (CosmosException)err;
                                     cerr.printStackTrace();
                                     System.err.println(String.format("Read Item failed with %s\n", cerr));
                                 } else {
@@ -243,18 +242,16 @@ public class AsyncMain {
         //  <QueryItems>
         // Set some common query options
 
-        FeedOptions queryOptions = new FeedOptions();
-        queryOptions.maxItemCount(10);
-        //queryOptions.setEnableCrossPartitionQuery(true); //No longer needed in SDK v4
-        //  Set populate query metrics to get metrics around query executions
-        queryOptions.populateQueryMetrics(true);
+        CosmosQueryRequestOptions queryOptions = new CosmosQueryRequestOptions();
+        //  Set query metrics enabled to get metrics around query executions
+        queryOptions.setQueryMetricsEnabled(true);
 
-        CosmosContinuablePagedFlux<Family> pagedFluxResponse = container.queryItems(
+        CosmosPagedFlux<Family> pagedFluxResponse = container.queryItems(
             "SELECT * FROM Family WHERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
 
         final CountDownLatch completionLatch = new CountDownLatch(1);
 
-        pagedFluxResponse.byPage().subscribe(
+        pagedFluxResponse.byPage(10).subscribe(
             fluxResponse -> {
                 System.out.println("Got a page of query result with " +
                     fluxResponse.getResults().size() + " items(s)"
@@ -267,9 +264,9 @@ public class AsyncMain {
                     .collect(Collectors.toList()));
             },
             err -> {
-                if (err instanceof CosmosClientException) {
+                if (err instanceof CosmosException) {
                     //Client-specific errors
-                    CosmosClientException cerr = (CosmosClientException)err;
+                    CosmosException cerr = (CosmosException)err;
                     cerr.printStackTrace();
                     System.err.println(String.format("Read Item failed with %s\n", cerr));
                 } else {
