@@ -28,6 +28,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SyncMain {
 
     private CosmosClient client;
@@ -37,6 +40,8 @@ public class SyncMain {
 
     private CosmosDatabase database;
     private CosmosContainer container;
+
+    protected static Logger logger = LoggerFactory.getLogger(SyncMain.class.getSimpleName());
 
     public void close() {
         client.close();
@@ -52,14 +57,14 @@ public class SyncMain {
         SyncMain p = new SyncMain();
 
         try {
-            System.out.println("Starting SYNC main");
+            logger.info("Starting SYNC main");
             p.getStartedDemo();
-            System.out.println("Demo complete, please hold while resources are released");
+            logger.info("Demo complete, please hold while resources are released");
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println(String.format("Cosmos getStarted failed with %s", e));
+            logger.error("Cosmos getStarted failed with %s", e);
         } finally {
-            System.out.println("Closing the client");
+            logger.info("Closing the client");
             p.close();
         }
         System.exit(0);
@@ -68,7 +73,7 @@ public class SyncMain {
     //  </Main>
 
     private void getStartedDemo() throws Exception {
-        System.out.println("Using Azure Cosmos DB endpoint: " + AccountSettings.HOST);
+        logger.info("Using Azure Cosmos DB endpoint: {}", AccountSettings.HOST);
 
         //  Create sync client
         //  <CreateSyncClient>
@@ -95,15 +100,15 @@ public class SyncMain {
 
         createFamilies(familiesToCreate);
 
-        System.out.println("Reading items.");
+        logger.info("Reading items.");
         readItems(familiesToCreate);
 
-        System.out.println("Querying items.");
+        logger.info("Querying items.");
         queryItems();
     }
 
     private void createDatabaseIfNotExists() throws Exception {
-        System.out.println("Create database " + databaseName + " if not exists.");
+        logger.info("Create database " + databaseName + " if not exists.");
 
         //  Create database if not exists
         //  <CreateDatabaseIfNotExists>
@@ -111,11 +116,11 @@ public class SyncMain {
         database = client.getDatabase(cosmosDatabaseResponse.getProperties().getId());
         //  </CreateDatabaseIfNotExists>
 
-        System.out.println("Checking database " + database.getId() + " completed!\n");
+        logger.info("Checking database " + database.getId() + " completed!\n");
     }
 
     private void createContainerIfNotExists() throws Exception {
-        System.out.println("Create container " + containerName + " if not exists.");
+        logger.info("Create container " + containerName + " if not exists.");
 
         //  Create container if not exists
         //  <CreateContainerIfNotExists>
@@ -128,7 +133,7 @@ public class SyncMain {
         container = database.getContainer(cosmosContainerResponse.getProperties().getId());
         //  </CreateContainerIfNotExists>
 
-        System.out.println("Checking container " + container.getId() + " completed!\n");
+        logger.info("Checking container " + container.getId() + " completed!\n");
     }
 
     private void createFamilies(List<Family> families) throws Exception {
@@ -145,15 +150,15 @@ public class SyncMain {
             //  </CreateItem>
 
             //  Get request charge and other properties like latency, and diagnostics strings, etc.
-            System.out.println(String.format("Created item with request charge of %.2f within" +
-                    " duration %s",
-                item.getRequestCharge(), item.getDuration()));
+            logger.info("Created item with request charge of {} within" +
+                    " duration {}",
+                item.getRequestCharge(), item.getDuration());
             totalRequestCharge += item.getRequestCharge();
         }
-        System.out.println(String.format("Created %d items with total request " +
-                "charge of %.2f",
+        logger.info("Created {} items with total request " +
+                "charge of {}",
             families.size(),
-            totalRequestCharge));
+            totalRequestCharge);
     }
 
     private void readItems(ArrayList<Family> familiesToCreate) {
@@ -165,11 +170,11 @@ public class SyncMain {
                 CosmosItemResponse<Family> item = container.readItem(family.getId(), new PartitionKey(family.getLastName()), Family.class);
                 double requestCharge = item.getRequestCharge();
                 Duration requestLatency = item.getDuration();
-                System.out.println(String.format("Item successfully read with id %s with a charge of %.2f and within duration %s",
-                    item.getItem().getId(), requestCharge, requestLatency));
+                logger.info("Item successfully read with id {} with a charge of {} and within duration {}",
+                    item.getItem().getId(), requestCharge, requestLatency);
             } catch (CosmosException e) {
                 e.printStackTrace();
-                System.err.println(String.format("Read Item failed with %s", e));
+                logger.error("Read Item failed with %s", e);
             }
             //  </ReadItem>
         });
@@ -187,11 +192,11 @@ public class SyncMain {
             "SELECT * FROM Family WHERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
 
         familiesPagedIterable.iterableByPage(10).forEach(cosmosItemPropertiesFeedResponse -> {
-            System.out.println("Got a page of query result with " +
+            logger.info("Got a page of query result with " +
                 cosmosItemPropertiesFeedResponse.getResults().size() + " items(s)"
                 + " and request charge of " + cosmosItemPropertiesFeedResponse.getRequestCharge());
 
-            System.out.println("Item Ids " + cosmosItemPropertiesFeedResponse
+            logger.info("Item Ids {}", cosmosItemPropertiesFeedResponse
                 .getResults()
                 .stream()
                 .map(Family::getId)

@@ -55,14 +55,14 @@ public class AsyncMain {
         AsyncMain p = new AsyncMain();
 
         try {
-            System.out.println("Starting ASYNC main");
+            logger.info("Starting ASYNC main");
             p.getStartedDemo();
-            System.out.println("Demo complete, please hold while resources are released");
+            logger.info("Demo complete, please hold while resources are released");
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println(String.format("Cosmos getStarted failed with %s", e));
+            logger.error("Cosmos getStarted failed with %s", e);
         } finally {
-            System.out.println("Closing the client");
+            logger.info("Closing the client");
             p.close();
         }
         System.exit(0);
@@ -71,7 +71,7 @@ public class AsyncMain {
     //  </Main>
 
     private void getStartedDemo() throws Exception {
-        System.out.println("Using Azure Cosmos DB endpoint: " + AccountSettings.HOST);
+        logger.info("Using Azure Cosmos DB endpoint: {}", AccountSettings.HOST);
 
         //  Create async client
         //  <CreateAsyncClient>
@@ -109,29 +109,29 @@ public class AsyncMain {
                                 johnsonFamilyItem,
                                 smithFamilyItem);
 
-        System.out.println("Reading items.");
+        logger.info("Reading items.");
         readItems(familiesToCreate);
 
-        System.out.println("Querying items.");
+        logger.info("Querying items.");
         queryItems();
     }
 
     private void createDatabaseIfNotExists() throws Exception {
-        System.out.println("Create database " + databaseName + " if not exists.");
+        logger.info("Create database {} if not exists.", databaseName);
 
         //  Create database if not exists
         //  <CreateDatabaseIfNotExists>
         Mono<CosmosDatabaseResponse> databaseResponseMono = client.createDatabaseIfNotExists(databaseName);
         databaseResponseMono.flatMap(databaseResponse -> {
             database = client.getDatabase(databaseResponse.getProperties().getId());
-            System.out.println("Checking database " + database.getId() + " completed!\n");
+            logger.info("Checking database {} completed!\n", database.getId());
             return Mono.empty();
         }).block();
         //  </CreateDatabaseIfNotExists>
     }
 
     private void createContainerIfNotExists() throws Exception {
-        System.out.println("Create container " + containerName + " if not exists.");
+        logger.info("Create container {} if not exists.", containerName);
 
         //  Create container if not exists
         //  <CreateContainerIfNotExists>
@@ -142,7 +142,7 @@ public class AsyncMain {
         //  Create container with 400 RU/s
         containerResponseMono.flatMap(containerResponse -> {
             container = database.getContainer(containerResponse.getProperties().getId());
-            System.out.println("Checking container " + container.getId() + " completed!\n");
+            logger.info("Checking container {} completed!\n", container.getId());
             return Mono.empty();
         }).block();
 
@@ -160,10 +160,10 @@ public class AsyncMain {
                 return container.createItem(family);
             }) //Flux of item request responses
                     .flatMap(itemResponse -> {
-                        logger.info(String.format("Created item with request charge of %.2f within" +
-                                        " duration %s",
-                                itemResponse.getRequestCharge(), itemResponse.getDuration()));
-                        logger.info(String.format("Item ID: %s\n", itemResponse.getItem().getId()));
+                        logger.info("Created item with request charge of {}} within" +
+                                        " duration {}",
+                                itemResponse.getRequestCharge(), itemResponse.getDuration());
+                        logger.info("Item ID: {}\n", itemResponse.getItem().getId());
                         return Mono.just(itemResponse.getRequestCharge());
                     }) //Flux of request charges
                     .reduce(0.0,
@@ -171,14 +171,14 @@ public class AsyncMain {
                     ) //Mono of total charge - there will be only one item in this stream
                     .block(); //Preserve the total charge and print aggregate charge/item count stats.
 
-            logger.info(String.format("Created items with total request charge of %.2f\n", charge));
+            logger.info("Created items with total request charge of {}\n", charge);
 
         } catch (Exception err) {
             if (err instanceof CosmosException) {
                 //Client-specific errors
                 CosmosException cerr = (CosmosException) err;
                 cerr.printStackTrace();
-                logger.error(String.format("Read Item failed with %s\n", cerr));
+                logger.error("Read Item failed with %s\n", cerr);
             } else {
                 //General errors
                 err.printStackTrace();
@@ -201,8 +201,8 @@ public class AsyncMain {
             }).flatMap(itemResponse -> {
                 double requestCharge = itemResponse.getRequestCharge();
                 Duration requestLatency = itemResponse.getDuration();
-                logger.info(String.format("Item successfully read with id %s with a charge of %.2f and within duration %s",
-                        itemResponse.getItem().getId(), requestCharge, requestLatency));
+                logger.info("Item successfully read with id {} with a charge of {} and within duration {}",
+                        itemResponse.getItem().getId(), requestCharge, requestLatency);
                 return Flux.empty();
             }).blockLast();
 
@@ -211,7 +211,7 @@ public class AsyncMain {
                 //Client-specific errors
                 CosmosException cerr = (CosmosException) err;
                 cerr.printStackTrace();
-                logger.error(String.format("Read Item failed with %s\n", cerr));
+                logger.error("Read Item failed with {}\n", cerr);
             } else {
                 //General errors
                 err.printStackTrace();
@@ -238,11 +238,10 @@ public class AsyncMain {
         try {
 
             pagedFluxResponse.byPage(preferredPageSize).flatMap(fluxResponse -> {
-                logger.info("Got a page of query result with " +
-                        fluxResponse.getResults().size() + " items(s)"
-                        + " and request charge of " + fluxResponse.getRequestCharge());
+                logger.info("Got a page of query result with {} items(s)"
+                        + " and request charge of {}", fluxResponse.getResults().size(), fluxResponse.getRequestCharge());
 
-                logger.info("Item Ids " + fluxResponse
+                logger.info("Item Ids {}" , fluxResponse
                         .getResults()
                         .stream()
                         .map(Family::getId)
@@ -256,7 +255,7 @@ public class AsyncMain {
                 //Client-specific errors
                 CosmosException cerr = (CosmosException) err;
                 cerr.printStackTrace();
-                logger.error(String.format("Read Item failed with %s\n", cerr));
+                logger.error("Read Item failed with %s\n", cerr);
             } else {
                 //General errors
                 err.printStackTrace();
