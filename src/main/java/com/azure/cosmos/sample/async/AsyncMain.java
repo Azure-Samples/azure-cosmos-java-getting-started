@@ -59,7 +59,6 @@ public class AsyncMain {
             p.getStartedDemo();
             logger.info("Demo complete, please hold while resources are released");
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("Cosmos getStarted failed with %s", e);
         } finally {
             logger.info("Closing the client");
@@ -177,11 +176,10 @@ public class AsyncMain {
             if (err instanceof CosmosException) {
                 //Client-specific errors
                 CosmosException cerr = (CosmosException) err;
-                cerr.printStackTrace();
                 logger.error("Read Item failed with %s\n", cerr);
             } else {
                 //General errors
-                err.printStackTrace();
+                logger.error("Error", err);
             }
         }
 
@@ -210,11 +208,10 @@ public class AsyncMain {
             if (err instanceof CosmosException) {
                 //Client-specific errors
                 CosmosException cerr = (CosmosException) err;
-                cerr.printStackTrace();
                 logger.error("Read Item failed with {}\n", cerr);
             } else {
                 //General errors
-                err.printStackTrace();
+                logger.err("Error", err);
             }
         }
 
@@ -254,11 +251,10 @@ public class AsyncMain {
             if (err instanceof CosmosException) {
                 //Client-specific errors
                 CosmosException cerr = (CosmosException) err;
-                cerr.printStackTrace();
                 logger.error("Read Item failed with %s\n", cerr);
             } else {
                 //General errors
-                err.printStackTrace();
+                logger.error("Error", err);
             }
         }
 
