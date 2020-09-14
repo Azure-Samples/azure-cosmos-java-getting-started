@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.stream.Collectors;
+import java.util.List;
 
 public class AsyncMain {
 
@@ -59,8 +60,7 @@ public class AsyncMain {
             p.getStartedDemo();
             logger.info("Demo complete, please hold while resources are released");
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Cosmos getStarted failed with %s", e);
+            logger.error("Cosmos getStarted failed with", e);
         } finally {
             logger.info("Closing the client");
             p.close();
@@ -160,7 +160,7 @@ public class AsyncMain {
                 return container.createItem(family);
             }) //Flux of item request responses
                     .flatMap(itemResponse -> {
-                        logger.info("Created item with request charge of {}} within" +
+                        logger.info("Created item with request charge of {} within" +
                                         " duration {}",
                                 itemResponse.getRequestCharge(), itemResponse.getDuration());
                         logger.info("Item ID: {}\n", itemResponse.getItem().getId());
@@ -177,11 +177,10 @@ public class AsyncMain {
             if (err instanceof CosmosException) {
                 //Client-specific errors
                 CosmosException cerr = (CosmosException) err;
-                cerr.printStackTrace();
-                logger.error("Read Item failed with %s\n", cerr);
+                logger.error("Read Item failed with CosmosException\n", cerr);
             } else {
                 //General errors
-                err.printStackTrace();
+                logger.error("Read Item failed with error\n", err);
             }
         }
 
@@ -210,11 +209,10 @@ public class AsyncMain {
             if (err instanceof CosmosException) {
                 //Client-specific errors
                 CosmosException cerr = (CosmosException) err;
-                cerr.printStackTrace();
-                logger.error("Read Item failed with {}\n", cerr);
+                logger.error("Read Item failed with CosmosException\n", cerr);
             } else {
                 //General errors
-                err.printStackTrace();
+                logger.error("Read Item failed\n", err);
             }
         }
 
@@ -238,10 +236,11 @@ public class AsyncMain {
         try {
 
             pagedFluxResponse.byPage(preferredPageSize).flatMap(fluxResponse -> {
-                logger.info("Got a page of query result with {} items(s)"
-                        + " and request charge of {}", fluxResponse.getResults().size(), fluxResponse.getRequestCharge());
+                logger.info("Got a page of query result with " +
+                        fluxResponse.getResults().size() + " items(s)"
+                        + " and request charge of " + fluxResponse.getRequestCharge());
 
-                logger.info("Item Ids {}" , fluxResponse
+                logger.info("Item Ids " + fluxResponse
                         .getResults()
                         .stream()
                         .map(Family::getId)
@@ -254,11 +253,10 @@ public class AsyncMain {
             if (err instanceof CosmosException) {
                 //Client-specific errors
                 CosmosException cerr = (CosmosException) err;
-                cerr.printStackTrace();
-                logger.error("Read Item failed with %s\n", cerr);
+                logger.error("Read Item failed with CosmosException\n", cerr);
             } else {
                 //General errors
-                err.printStackTrace();
+                logger.error("Read Item failed\n", err);
             }
         }
 

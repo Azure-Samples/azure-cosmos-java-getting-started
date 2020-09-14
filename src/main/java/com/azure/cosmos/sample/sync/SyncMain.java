@@ -61,8 +61,7 @@ public class SyncMain {
             p.getStartedDemo();
             logger.info("Demo complete, please hold while resources are released");
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Cosmos getStarted failed with %s", e);
+            logger.error("Cosmos getStarted failed with", e);
         } finally {
             logger.info("Closing the client");
             p.close();
@@ -108,7 +107,7 @@ public class SyncMain {
     }
 
     private void createDatabaseIfNotExists() throws Exception {
-        logger.info("Create database " + databaseName + " if not exists.");
+        logger.info("Create database {} if not exists.", databaseName);
 
         //  Create database if not exists
         //  <CreateDatabaseIfNotExists>
@@ -116,11 +115,11 @@ public class SyncMain {
         database = client.getDatabase(cosmosDatabaseResponse.getProperties().getId());
         //  </CreateDatabaseIfNotExists>
 
-        logger.info("Checking database " + database.getId() + " completed!\n");
+        logger.info("Checking database {} completed!\n", database.getId());
     }
 
     private void createContainerIfNotExists() throws Exception {
-        logger.info("Create container " + containerName + " if not exists.");
+        logger.info("Create container {} if not exists.", containerName);
 
         //  Create container if not exists
         //  <CreateContainerIfNotExists>
@@ -133,7 +132,7 @@ public class SyncMain {
         container = database.getContainer(cosmosContainerResponse.getProperties().getId());
         //  </CreateContainerIfNotExists>
 
-        logger.info("Checking container " + container.getId() + " completed!\n");
+        logger.info("Checking container {} completed!\n", container.getId());
     }
 
     private void createFamilies(List<Family> families) throws Exception {
@@ -150,13 +149,11 @@ public class SyncMain {
             //  </CreateItem>
 
             //  Get request charge and other properties like latency, and diagnostics strings, etc.
-            logger.info("Created item with request charge of {} within" +
-                    " duration {}",
+            logger.info("Created item with request charge of {} within duration {}",
                 item.getRequestCharge(), item.getDuration());
             totalRequestCharge += item.getRequestCharge();
         }
-        logger.info("Created {} items with total request " +
-                "charge of {}",
+        logger.info("Created {} items with total request charge of {}",
             families.size(),
             totalRequestCharge);
     }
@@ -173,8 +170,7 @@ public class SyncMain {
                 logger.info("Item successfully read with id {} with a charge of {} and within duration {}",
                     item.getItem().getId(), requestCharge, requestLatency);
             } catch (CosmosException e) {
-                e.printStackTrace();
-                logger.error("Read Item failed with %s", e);
+                logger.error("Read Item failed with", e);
             }
             //  </ReadItem>
         });
@@ -192,9 +188,8 @@ public class SyncMain {
             "SELECT * FROM Family WHERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
 
         familiesPagedIterable.iterableByPage(10).forEach(cosmosItemPropertiesFeedResponse -> {
-            logger.info("Got a page of query result with " +
-                cosmosItemPropertiesFeedResponse.getResults().size() + " items(s)"
-                + " and request charge of " + cosmosItemPropertiesFeedResponse.getRequestCharge());
+            logger.info("Got a page of query result with {} items(s) and request charge of {}",
+                    cosmosItemPropertiesFeedResponse.getResults().size(), cosmosItemPropertiesFeedResponse.getRequestCharge());
 
             logger.info("Item Ids {}", cosmosItemPropertiesFeedResponse
                 .getResults()
