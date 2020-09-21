@@ -65,7 +65,6 @@ public class AsyncMain {
             logger.info("Closing the client");
             p.close();
         }
-        System.exit(0);
     }
 
     //  </Main>
