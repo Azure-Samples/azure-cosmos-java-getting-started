@@ -3,23 +3,13 @@
 
 package com.azure.cosmos.sample.async;
 
-import com.azure.cosmos.ConsistencyLevel;
-import com.azure.cosmos.CosmosAsyncClient;
-import com.azure.cosmos.CosmosAsyncContainer;
-import com.azure.cosmos.CosmosAsyncDatabase;
-import com.azure.cosmos.CosmosClientBuilder;
-import com.azure.cosmos.CosmosException;
-import com.azure.cosmos.models.CosmosContainerProperties;
-import com.azure.cosmos.models.CosmosContainerResponse;
-import com.azure.cosmos.models.CosmosDatabaseResponse;
-import com.azure.cosmos.models.CosmosItemResponse;
-import com.azure.cosmos.models.CosmosQueryRequestOptions;
-import com.azure.cosmos.models.PartitionKey;
-import com.azure.cosmos.models.ThroughputProperties;
+import com.azure.cosmos.*;
+import com.azure.cosmos.models.*;
 import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
 import com.azure.cosmos.util.CosmosPagedFlux;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -27,7 +17,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 public class AsyncMain {
 
@@ -89,26 +78,28 @@ public class AsyncMain {
         createDatabaseIfNotExists();
         createContainerIfNotExists();
 
-        Family andersenFamilyItem=Families.getAndersenFamilyItem();
-        Family wakefieldFamilyItem=Families.getWakefieldFamilyItem();
-        Family johnsonFamilyItem=Families.getJohnsonFamilyItem();
-        Family smithFamilyItem=Families.getSmithFamilyItem();
+             //  Setup family items to create
+        Flux<Family> familiesToCreate = Flux.just(Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily(),
+                Families.generateFamily());
 
-        //  Setup family items to create
-        Flux<Family> familiesToCreate = Flux.just(andersenFamilyItem,
-                                            wakefieldFamilyItem,
-                                            johnsonFamilyItem,
-                                            smithFamilyItem);
 
         createFamilies(familiesToCreate);
 
-        familiesToCreate = Flux.just(andersenFamilyItem,
-                                wakefieldFamilyItem,
-                                johnsonFamilyItem,
-                                smithFamilyItem);
-
         logger.info("Reading items.");
-        readItems(familiesToCreate);
+      //  readItems(familiesToCreate);
 
         logger.info("Querying items.");
         queryItems();
@@ -134,9 +125,9 @@ public class AsyncMain {
         //  Create container if not exists
         //  <CreateContainerIfNotExists>
 
-        CosmosContainerProperties containerProperties = new CosmosContainerProperties(containerName, "/lastName");
+        CosmosContainerProperties containerProperties = new CosmosContainerProperties(containerName, "/id");
         Mono<CosmosContainerResponse> containerResponseMono = database.createContainerIfNotExists(containerProperties, ThroughputProperties.createManualThroughput(400));
-        
+
         //  Create container with 400 RU/s
         containerResponseMono.flatMap(containerResponse -> {
             container = database.getContainer(containerResponse.getProperties().getId());
@@ -182,7 +173,7 @@ public class AsyncMain {
             }
         }
 
-        //  </CreateItem>            
+        //  </CreateItem>
     }
 
     private void readItems(Flux<Family> familiesToCreate) {
@@ -221,31 +212,31 @@ public class AsyncMain {
         //  <QueryItems>
         // Set some common query options
 
-        int preferredPageSize = 10; // We'll use this later
+        int preferredPageSize = 5; // We'll use this later
 
         CosmosQueryRequestOptions queryOptions = new CosmosQueryRequestOptions();
 
         //  Set populate query metrics to get metrics around query executions
         queryOptions.setQueryMetricsEnabled(true);
 
-        CosmosPagedFlux<Family> pagedFluxResponse = container.queryItems(
-                "SELECT * FROM Family WHERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
+//        CosmosPagedFlux<Family> pagedFluxResponse = container.queryItems(
+//                "SELECT * FROM Family WHERE Family.lastName IN ('Andersen', 'Wakefield', 'Johnson')", queryOptions, Family.class);
 
         try {
+        CosmosPagedFlux<JsonNode> pagedFluxResponse = container.queryItems(
+                "SELECT VALUE root FROM (SELECT DISTINCT i FROM i JOIN (SELECT DISTINCT VALUE bla FROM bla IN i.children WHERE bla.gender='male') where i.district=null) as root ORDER BY root.i._ts DESC"
+                       , queryOptions, JsonNode.class);
 
-            pagedFluxResponse.byPage(preferredPageSize).flatMap(fluxResponse -> {
+
+
+            pagedFluxResponse.byPage(preferredPageSize)
+                    .flatMap(fluxResponse -> {
                 logger.info("Got a page of query result with " +
                         fluxResponse.getResults().size() + " items(s)"
                         + " and request charge of " + fluxResponse.getRequestCharge());
 
-                logger.info("Item Ids " + fluxResponse
-                        .getResults()
-                        .stream()
-                        .map(Family::getId)
-                        .collect(Collectors.toList()));
-
                 return Flux.empty();
-            }).blockLast();
+            }).blockFirst();
 
         } catch(Exception err) {
             if (err instanceof CosmosException) {

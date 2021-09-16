@@ -3,66 +3,10 @@
 
 package com.azure.cosmos.sample.common;
 
+import lombok.Builder;
+
+@Builder
 public class Family {
-    public Family() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getDistrict() {
-        return district;
-    }
-
-    public void setDistrict(String district) {
-        this.district = district;
-    }
-
-    public Parent[] getParents() {
-        return parents;
-    }
-
-    public void setParents(Parent[] parents) {
-        this.parents = parents;
-    }
-
-    public Child[] getChildren() {
-        return children;
-    }
-
-    public void setChildren(Child[] children) {
-        this.children = children;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
-
-    public boolean isRegistered() {
-        return isRegistered;
-    }
-
-    public void setRegistered(boolean isRegistered) {
-        this.isRegistered = isRegistered;
-    }
-
     private String id;
     private String lastName;
     private String district;
@@ -70,5 +14,37 @@ public class Family {
     private Child[] children;
     private Address address;
     private boolean isRegistered;
+
+    public Parent[] getParents()
+    {
+        return this.parents;
+    }
+
+    public String getDistrict()
+    {
+        return this.district;
+    }
+
+    public Child[] getChildren() {
+        return children;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public boolean isRegistered() {
+        return isRegistered;
+    }
+
+    public String getId()
+    {
+        return this.id;
+    }
+
+    public String getLastName()
+    {
+        return this.lastName;
+    }
 }
 

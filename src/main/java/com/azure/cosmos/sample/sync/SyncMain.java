@@ -3,33 +3,19 @@
 
 package com.azure.cosmos.sample.sync;
 
-import com.azure.cosmos.ConsistencyLevel;
-import com.azure.cosmos.CosmosClient;
-import com.azure.cosmos.CosmosClientBuilder;
-import com.azure.cosmos.CosmosContainer;
-import com.azure.cosmos.CosmosDatabase;
-import com.azure.cosmos.CosmosException;
-import com.azure.cosmos.models.CosmosContainerProperties;
-import com.azure.cosmos.models.CosmosContainerResponse;
-import com.azure.cosmos.models.CosmosDatabaseResponse;
-import com.azure.cosmos.models.CosmosItemRequestOptions;
-import com.azure.cosmos.models.CosmosItemResponse;
-import com.azure.cosmos.models.PartitionKey;
-import com.azure.cosmos.models.CosmosQueryRequestOptions;
-import com.azure.cosmos.models.ThroughputProperties;
+import com.azure.cosmos.*;
+import com.azure.cosmos.models.*;
 import com.azure.cosmos.sample.common.AccountSettings;
-import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
 import com.azure.cosmos.util.CosmosPagedIterable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SyncMain {
 
@@ -87,23 +73,23 @@ public class SyncMain {
 
         //  </CreateSyncClient>
 
-        createDatabaseIfNotExists();
-        createContainerIfNotExists();
-
-        //  Setup family items to create
-        ArrayList<Family> familiesToCreate = new ArrayList<>();
-        familiesToCreate.add(Families.getAndersenFamilyItem());
-        familiesToCreate.add(Families.getWakefieldFamilyItem());
-        familiesToCreate.add(Families.getJohnsonFamilyItem());
-        familiesToCreate.add(Families.getSmithFamilyItem());
-
-        createFamilies(familiesToCreate);
-
-        logger.info("Reading items.");
-        readItems(familiesToCreate);
-
-        logger.info("Querying items.");
-        queryItems();
+//        createDatabaseIfNotExists();
+//        createContainerIfNotExists();
+//
+//        //  Setup family items to create
+//        ArrayList<Family> familiesToCreate = new ArrayList<>();
+//        familiesToCreate.add(Families.getAndersenFamilyItem());
+//        familiesToCreate.add(Families.getWakefieldFamilyItem());
+//        familiesToCreate.add(Families.getJohnsonFamilyItem());
+//        familiesToCreate.add(Families.getSmithFamilyItem());
+//
+//        createFamilies(familiesToCreate);
+//
+//        logger.info("Reading items.");
+//        readItems(familiesToCreate);
+//
+//        logger.info("Querying items.");
+       // queryItems();
     }
 
     private void createDatabaseIfNotExists() throws Exception {
@@ -194,7 +180,7 @@ public class SyncMain {
             logger.info("Item Ids {}", cosmosItemPropertiesFeedResponse
                 .getResults()
                 .stream()
-                .map(Family::getId)
+                //.map(cip -> cip.get("id").asText())
                 .collect(Collectors.toList()));
         });
         //  </QueryItems>

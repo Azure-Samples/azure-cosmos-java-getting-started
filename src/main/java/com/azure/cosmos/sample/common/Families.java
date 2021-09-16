@@ -2,116 +2,92 @@
 // Licensed under the MIT License.
 
 package com.azure.cosmos.sample.common;
+import com.github.javafaker.Faker;
+
+import java.util.UUID;
 
 public class Families {
- 
-    public static Family getAndersenFamilyItem() {
-        Family andersenFamily = new Family();
-        andersenFamily.setId("Andersen-" + System.currentTimeMillis());
-        andersenFamily.setLastName("Andersen");
-
-        Parent parent1 = new Parent();
-        parent1.setFirstName("Thomas");
-
-        Parent parent2 = new Parent();
-        parent2.setFirstName("Mary Kay");
-
-        andersenFamily.setParents(new Parent[] { parent1, parent2 });
-
-        Child child1 = new Child();
-        child1.setFirstName("Henriette Thaulow");
-        child1.setGender("female");
-        child1.setGrade(5);
-
-        Pet pet1 = new Pet();
-        pet1.setGivenName("Fluffy");
-
-        child1.setPets(new Pet[] { pet1 });
-
-        andersenFamily.setDistrict("WA5");
-        Address address = new Address();
-        address.setCity("Seattle");
-        address.setCounty("King");
-        address.setState("WA");
-
-        andersenFamily.setAddress(address);
-        andersenFamily.setRegistered(true);
-
-        return andersenFamily;
-    }
-
-    public static Family getWakefieldFamilyItem() {
-        Family wakefieldFamily = new Family();
-        wakefieldFamily.setId("Wakefield-" + System.currentTimeMillis());
-        wakefieldFamily.setLastName("Wakefield");
-
-        Parent parent1 = new Parent();
-        parent1.setFamilyName("Wakefield");
-        parent1.setFirstName("Robin");
-
-        Parent parent2 = new Parent();
-        parent2.setFamilyName("Miller");
-        parent2.setFirstName("Ben");
-
-        wakefieldFamily.setParents(new Parent[] { parent1, parent2 });
-
-        Child child1 = new Child();
-        child1.setFirstName("Jesse");
-        child1.setFamilyName("Merriam");
-        child1.setGrade(8);
-
-        Pet pet1 = new Pet();
-        pet1.setGivenName("Goofy");
-
-        Pet pet2 = new Pet();
-        pet2.setGivenName("Shadow");
-
-        child1.setPets(new Pet[] { pet1, pet2 });
-
-        Child child2 = new Child();
-        child2.setFirstName("Lisa");
-        child2.setFamilyName("Miller");
-        child2.setGrade(1);
-        child2.setGender("female");
-
-        wakefieldFamily.setChildren(new Child[] { child1, child2 });
-
-        Address address = new Address();
-        address.setCity("NY");
-        address.setCounty("Manhattan");
-        address.setState("NY");
-
-        wakefieldFamily.setAddress(address);
-        wakefieldFamily.setDistrict("NY23");
-        wakefieldFamily.setRegistered(true);
-        return wakefieldFamily;
-    }
-
-    public static Family getJohnsonFamilyItem() {
-        Family andersenFamily = new Family();
-        andersenFamily.setId("Johnson-" + System.currentTimeMillis());
-        andersenFamily.setLastName("Johnson");
-
-        Parent parent1 = new Parent();
-        parent1.setFirstName("John");
-
-        Parent parent2 = new Parent();
-        parent2.setFirstName("Lili");
-
-        return andersenFamily;
-    }
+    private static final Faker faker = new Faker();
     
-    public static Family getSmithFamilyItem() {
-        Family andersenFamily = new Family();
-        andersenFamily.setId("Smith-" + System.currentTimeMillis());
-        andersenFamily.setLastName("Smith");
+    public static Address addressPool[] = {
+        Address.builder()
+                .city("San Ramon")
+                .county("King")
+                .state("CA")
+                .build(),
 
-        Parent parent1 = new Parent();
-        parent1.setFirstName("John");
+        Address.builder()
+                .city("Mountain View")
+                .state("CA")
+                .county("Greene")
+                .build(),
 
-        Parent parent2 = new Parent();
-        parent2.setFirstName("Cynthia");
+        Address.builder()
+                .city("Austin")
+                .state("TX")
+                .county("Union")
+                .build(),
 
-        return andersenFamily;
+        Address.builder()
+                .city("Austin")
+                .state("TX")
+                .county("Monroe")
+                .build(),
+
+        Address.builder()
+                .city("Seattle")
+                .county("Jefferson")
+                .state("WA")
+                .build()
+
+    };
+
+    public static String gender[] = {"male", "female"};
+
+    public static Pet generatePet()
+    {
+        return Pet.builder().givenName(faker.name().username()).build();
+    }
+
+    public static Child generateChild(String lastName)
+    {
+        int numberPets = faker.random().nextInt(4);
+        Pet pets[] = new Pet[numberPets];
+        for (int i=0; i<numberPets; i++)
+        {
+            pets[i] = generatePet();
+        }
+        return Child.builder()
+                .firstName(faker.name().firstName())
+                .familyName(lastName)
+                .gender(gender[faker.random().nextInt(gender.length)])
+                .grade(faker.random().nextInt(12))
+                .pets(pets)
+                .build();
+    }
+    public static Family generateFamily() {
+        String lastName = faker.name().lastName();
+        int numberChildren = faker.random().nextInt(4);
+        Child children[] = new Child[numberChildren];
+        for (int i=0; i<numberChildren; i++)
+        {
+            children[i] = generateChild(lastName);
+        }
+        return Family.builder()
+                .address(addressPool[faker.random().nextInt(addressPool.length)])
+                .lastName(lastName)
+                .id(lastName + UUID.randomUUID().toString())
+                .parents(new Parent[]{
+                        Parent.builder()
+                                .firstName(faker.name().firstName())
+                                .familyName(lastName)
+                                .build(),
+                        Parent.builder()
+                                .firstName(faker.name().firstName())
+                                .familyName(lastName)
+                                .build()
+                })
+                .children(children)
+                .build();
     }
 }

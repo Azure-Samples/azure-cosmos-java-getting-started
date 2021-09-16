@@ -2,32 +2,18 @@
 // Licensed under the MIT License.
 
 package com.azure.cosmos.sample.common;
+import lombok.Builder;
 
+@Builder
 public class Parent {
-
-    public Parent() {
-    }
-
-    public Parent(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getFamilyName() {
-        return familyName;
-    }
-
-    public void setFamilyName(String familyName) {
-        this.familyName = familyName;
-    }
+    private String familyName;
+    private String firstName;
 
     public String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public String getFamilyName() {
+        return familyName;
     }
-
-    private String familyName;
-    private String firstName;
 }

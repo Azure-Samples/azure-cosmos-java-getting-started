@@ -2,15 +2,13 @@
 // Licensed under the MIT License.
 
 package com.azure.cosmos.sample.common;
+import lombok.Builder;
 
+@Builder
 public class Pet {
+    private String givenName;
+
     public String getGivenName() {
         return givenName;
     }
-
-    public void setGivenName(String givenName) {
-        this.givenName = givenName;
-    }
-
-    private String givenName;
 }
