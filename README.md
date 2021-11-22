@@ -4,7 +4,7 @@ languages:
 - java
 products:
 - azure
-description: "Azure CosmosDB is a globally distributed multi-model database."
+description: "Azure Cosmos DB is a globally distributed multi-model database."
 urlFragment: "azure-cosmos-java-getting-started"
 ---
 
