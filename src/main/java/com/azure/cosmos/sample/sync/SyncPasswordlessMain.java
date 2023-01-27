@@ -75,10 +75,10 @@ public class SyncPasswordlessMain {
     private void getStartedDemo() throws Exception {
         logger.info("Using Azure Cosmos DB endpoint: {}", AccountSettings.HOST);
 
-        DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
-
         //  Create sync client
         //  <CreatePasswordlessSyncClient>
+        DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
+
         client = new CosmosClientBuilder()
             .endpoint(AccountSettings.HOST)
             .credential(credential)
