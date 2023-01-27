@@ -20,6 +20,8 @@ import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
 import com.azure.cosmos.util.CosmosPagedFlux;
+import com.azure.identity.DefaultAzureCredential;
+import com.azure.identity.DefaultAzureCredentialBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -29,7 +31,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
-public class AsyncMain {
+public class AsyncPasswordlessMain {
 
     private CosmosAsyncClient client;
 
@@ -39,7 +41,7 @@ public class AsyncMain {
     private CosmosAsyncDatabase database;
     private CosmosAsyncContainer container;
 
-    protected static Logger logger = LoggerFactory.getLogger(AsyncMain.class.getSimpleName());
+    protected static Logger logger = LoggerFactory.getLogger(AsyncPasswordlessMain.class.getSimpleName());
 
     public void close() {
         client.close();
@@ -52,7 +54,7 @@ public class AsyncMain {
      */
     //  <Main>
     public static void main(String[] args) {
-        AsyncMain p = new AsyncMain();
+        AsyncPasswordlessMain p = new AsyncPasswordlessMain();
 
         try {
             logger.info("Starting ASYNC main");
@@ -71,11 +73,13 @@ public class AsyncMain {
     private void getStartedDemo() throws Exception {
         logger.info("Using Azure Cosmos DB endpoint: {}", AccountSettings.HOST);
 
+        DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
+
         //  Create async client
-        //  <CreateAsyncClient>
+        //  <CreatePasswordlessAsyncClient>
         client = new CosmosClientBuilder()
             .endpoint(AccountSettings.HOST)
-            .key(AccountSettings.MASTER_KEY)
+            .credential(credential)
             //  Setting the preferred location to Cosmos DB Account region
             //  West US is just an example. User should set preferred location to the Cosmos DB region closest to the application
             .preferredRegions(Collections.singletonList("West US"))
@@ -84,7 +88,7 @@ public class AsyncMain {
             .contentResponseOnWriteEnabled(true)
             .buildAsyncClient();
 
-        //  </CreateAsyncClient>
+        //  </CreatePasswordlessAsyncClient>
 
         createDatabaseIfNotExists();
         createContainerIfNotExists();

@@ -3,6 +3,7 @@
 
 package com.azure.cosmos.sample.sync;
 
+import com.azure.identity.DefaultAzureCredential;
 import com.azure.cosmos.ConsistencyLevel;
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosClientBuilder;
@@ -14,13 +15,16 @@ import com.azure.cosmos.models.CosmosContainerResponse;
 import com.azure.cosmos.models.CosmosDatabaseResponse;
 import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.azure.cosmos.models.CosmosItemResponse;
-import com.azure.cosmos.models.PartitionKey;
 import com.azure.cosmos.models.CosmosQueryRequestOptions;
+import com.azure.cosmos.models.PartitionKey;
 import com.azure.cosmos.models.ThroughputProperties;
 import com.azure.cosmos.sample.common.AccountSettings;
 import com.azure.cosmos.sample.common.Families;
 import com.azure.cosmos.sample.common.Family;
 import com.azure.cosmos.util.CosmosPagedIterable;
+import com.azure.identity.DefaultAzureCredentialBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -28,10 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class SyncMain {
+public class SyncPasswordlessMain {
 
     private CosmosClient client;
 
@@ -41,7 +42,7 @@ public class SyncMain {
     private CosmosDatabase database;
     private CosmosContainer container;
 
-    protected static Logger logger = LoggerFactory.getLogger(SyncMain.class.getSimpleName());
+    protected static Logger logger = LoggerFactory.getLogger(SyncPasswordlessMain.class.getSimpleName());
 
     public void close() {
         client.close();
@@ -54,7 +55,7 @@ public class SyncMain {
      */
     //  <Main>
     public static void main(String[] args) {
-        SyncMain p = new SyncMain();
+        SyncPasswordlessMain p = new SyncPasswordlessMain();
 
         try {
             logger.info("Starting SYNC main");
@@ -74,18 +75,20 @@ public class SyncMain {
     private void getStartedDemo() throws Exception {
         logger.info("Using Azure Cosmos DB endpoint: {}", AccountSettings.HOST);
 
+        DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
+
         //  Create sync client
-        //  <CreateSyncClient>
+        //  <CreatePasswordlessSyncClient>
         client = new CosmosClientBuilder()
             .endpoint(AccountSettings.HOST)
-            .key(AccountSettings.MASTER_KEY)
+            .credential(credential)
             //  Setting the preferred location to Cosmos DB Account region
             //  West US is just an example. User should set preferred location to the Cosmos DB region closest to the application
             .preferredRegions(Collections.singletonList("West US"))
             .consistencyLevel(ConsistencyLevel.EVENTUAL)
             .buildClient();
 
-        //  </CreateSyncClient>
+        //  </CreatePasswordlessSyncClient>
 
         createDatabaseIfNotExists();
         createContainerIfNotExists();
