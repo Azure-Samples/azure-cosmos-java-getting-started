@@ -38,6 +38,18 @@
                             <mainClass>com.azure.cosmos.sample.async.AsyncMain</mainClass>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>sync-passwordless</id>
+                        <configuration>
+                            <mainClass>com.azure.cosmos.sample.sync.SyncPasswordlessMain</mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>async-passwordless</id>
+                        <configuration>
+                            <mainClass>com.azure.cosmos.sample.async.AsyncPasswordlessMain</mainClass>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
