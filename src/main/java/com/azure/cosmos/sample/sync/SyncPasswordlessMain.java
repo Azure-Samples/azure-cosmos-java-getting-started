@@ -75,10 +75,10 @@ public class SyncPasswordlessMain {
     private void getStartedDemo() throws Exception {
         logger.info("Using Azure Cosmos DB endpoint: {}", AccountSettings.HOST);
 
-        DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
-
         //  Create sync client
         //  <CreatePasswordlessSyncClient>
+        DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
+
         client = new CosmosClientBuilder()
             .endpoint(AccountSettings.HOST)
             .credential(credential)
@@ -90,8 +90,11 @@ public class SyncPasswordlessMain {
 
         //  </CreatePasswordlessSyncClient>
 
-        createDatabaseIfNotExists();
-        createContainerIfNotExists();
+        //database and container creation can only be done via control plane
+        //ensure you have created a database named AzureSampleFamilyDB
+        database = client.getDatabase(databaseName);
+        //ensure you have created the container named FamilyContainer, partitioned by /lastName
+        container = database.getContainer(containerName);
 
         //  Setup family items to create
         ArrayList<Family> familiesToCreate = new ArrayList<>();
@@ -107,35 +110,6 @@ public class SyncPasswordlessMain {
 
         logger.info("Querying items.");
         queryItems();
-    }
-
-    private void createDatabaseIfNotExists() throws Exception {
-        logger.info("Create database {} if not exists.", databaseName);
-
-        //  Create database if not exists
-        //  <CreateDatabaseIfNotExists>
-        CosmosDatabaseResponse cosmosDatabaseResponse = client.createDatabaseIfNotExists(databaseName);
-        database = client.getDatabase(cosmosDatabaseResponse.getProperties().getId());
-        //  </CreateDatabaseIfNotExists>
-
-        logger.info("Checking database {} completed!\n", database.getId());
-    }
-
-    private void createContainerIfNotExists() throws Exception {
-        logger.info("Create container {} if not exists.", containerName);
-
-        //  Create container if not exists
-        //  <CreateContainerIfNotExists>
-        CosmosContainerProperties containerProperties =
-            new CosmosContainerProperties(containerName, "/lastName");
-
-        //  Create container with 400 RU/s
-        CosmosContainerResponse cosmosContainerResponse =
-            database.createContainerIfNotExists(containerProperties, ThroughputProperties.createManualThroughput(400));
-        container = database.getContainer(cosmosContainerResponse.getProperties().getId());
-        //  </CreateContainerIfNotExists>
-
-        logger.info("Checking container {} completed!\n", container.getId());
     }
 
     private void createFamilies(List<Family> families) throws Exception {

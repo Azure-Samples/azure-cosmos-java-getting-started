@@ -73,10 +73,10 @@ public class AsyncPasswordlessMain {
     private void getStartedDemo() throws Exception {
         logger.info("Using Azure Cosmos DB endpoint: {}", AccountSettings.HOST);
 
-        DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
-
         //  Create async client
         //  <CreatePasswordlessAsyncClient>
+        DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
+
         client = new CosmosClientBuilder()
             .endpoint(AccountSettings.HOST)
             .credential(credential)
@@ -90,8 +90,11 @@ public class AsyncPasswordlessMain {
 
         //  </CreatePasswordlessAsyncClient>
 
-        createDatabaseIfNotExists();
-        createContainerIfNotExists();
+        //database and container creation can only be done via control plane
+        //ensure you have created a database named AzureSampleFamilyDB
+        database = client.getDatabase(databaseName);
+        //ensure you have created the container named FamilyContainer, partitioned by /lastName
+        container = database.getContainer(containerName);
 
         Family andersenFamilyItem=Families.getAndersenFamilyItem();
         Family wakefieldFamilyItem=Families.getWakefieldFamilyItem();
@@ -116,39 +119,6 @@ public class AsyncPasswordlessMain {
 
         logger.info("Querying items.");
         queryItems();
-    }
-
-    private void createDatabaseIfNotExists() throws Exception {
-        logger.info("Create database {} if not exists.", databaseName);
-
-        //  Create database if not exists
-        //  <CreateDatabaseIfNotExists>
-        Mono<CosmosDatabaseResponse> databaseResponseMono = client.createDatabaseIfNotExists(databaseName);
-        databaseResponseMono.flatMap(databaseResponse -> {
-            database = client.getDatabase(databaseResponse.getProperties().getId());
-            logger.info("Checking database {} completed!\n", database.getId());
-            return Mono.empty();
-        }).block();
-        //  </CreateDatabaseIfNotExists>
-    }
-
-    private void createContainerIfNotExists() throws Exception {
-        logger.info("Create container {} if not exists.", containerName);
-
-        //  Create container if not exists
-        //  <CreateContainerIfNotExists>
-
-        CosmosContainerProperties containerProperties = new CosmosContainerProperties(containerName, "/lastName");
-        Mono<CosmosContainerResponse> containerResponseMono = database.createContainerIfNotExists(containerProperties, ThroughputProperties.createManualThroughput(400));
-        
-        //  Create container with 400 RU/s
-        containerResponseMono.flatMap(containerResponse -> {
-            container = database.getContainer(containerResponse.getProperties().getId());
-            logger.info("Checking container {} completed!\n", container.getId());
-            return Mono.empty();
-        }).block();
-
-        //  </CreateContainerIfNotExists>
     }
 
     private void createFamilies(Flux<Family> families) throws Exception {
